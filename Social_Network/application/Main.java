@@ -7,13 +7,19 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -26,6 +32,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -42,6 +49,8 @@ public class Main extends Application {
   public Canvas graphCanvas;
   private GraphicsContext gc;
   public VBox statusGraphBox;
+  public VBox statusBox;
+  public VBox leftSide;
   public HBox basicMenuBox;
   public VBox advanceMenuBox;
   private int numOfConnectedGraph;
@@ -52,8 +61,18 @@ public class Main extends Application {
   }
 
   private void setUpstatusBox() {
-
-  }
+		statusBox = new VBox(10);
+		Label text = new Label("Status Message:\n ");
+		Label message = new Label("No Instruction Yet");
+		if(getCurrentInstruction()!= null) {
+			message.setText(getCurrentInstruction());
+		}
+		statusBox.getChildren().addAll(text, message);
+		
+	}
+	private String getCurrentInstruction() {
+		return null;
+	}
 
   private void setUpBasicMenuBox() {
     basicMenuBox = new HBox(10);
@@ -172,7 +191,68 @@ public class Main extends Application {
     Button clear = new Button("Clear");
     Button undo = new Button("Undo");
     Button exit = new Button("Exit");
+    
+    Alert a = new Alert(AlertType.NONE); 
+    EventHandler<ActionEvent> eventClear = new EventHandler<ActionEvent>() { 
+    	public void handle(ActionEvent e) 
+    	{ 
+    		// set alert type 
+    		a.setAlertType(AlertType.CONFIRMATION); 
 
+    		// set content text 
+    		a.setContentText("Do you want to clear the network?"); 
+
+    		// show the dialog 
+    		a.show(); 
+    	} 
+    }; 
+    
+    EventHandler<ActionEvent> eventUndo = new EventHandler<ActionEvent>() { 
+    	public void handle(ActionEvent e) 
+    	{ 
+    		// set alert type 
+    		a.setAlertType(AlertType.CONFIRMATION); 
+
+    		// set content text 
+    		a.setContentText("Do you want to undo last instruction?"); 
+
+    		// show the dialog 
+    		a.show(); 
+    	} 
+    }; 
+    
+    EventHandler<ActionEvent> eventExit = new EventHandler<ActionEvent>() { 
+    	public void handle(ActionEvent e) 
+    	{ 
+    		TextInputDialog dialog = new TextInputDialog("myNetwork");
+    		dialog.setContentText("If you wish to save your network\nPlease enter file name:");
+    		dialog.setTitle("Exit Dialog");
+    		
+    		ButtonType save = new ButtonType("Save",ButtonData.OK_DONE);
+    		ButtonType exit_without_save = new ButtonType("Exit without Save",ButtonData.OK_DONE);
+    		
+    		dialog.getDialogPane().getButtonTypes().setAll(save, exit_without_save);
+    		
+    		Optional<String> result = dialog.showAndWait();
+    		
+    		dialog.setResultConverter(dialogButton -> {
+    		    if (result.get() != null) {
+        		    return null;//...user chose save
+    		    }
+    		    else {
+        		    return null; // ... user chose exit without save
+        		}
+
+    		});
+    		
+    		
+    	} 
+    }; 
+    
+    clear.setOnAction(eventClear);
+    undo.setOnAction(eventUndo);
+    exit.setOnAction(eventExit);
+    
     HBox buttonCollection2 = new HBox(10);
     Button export = new Button("Export");
     TextField exportInp = new TextField();
@@ -307,7 +387,10 @@ public class Main extends Application {
     rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
 
     pane.setRight(rightBox);
-    pane.setLeft(statusGraphBox);
+    setUpstatusBox();
+    leftSide = new VBox(20);
+	  leftSide.getChildren().addAll(statusGraphBox,statusBox );
+	  pane.setLeft(leftSide);
     Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     primaryStage.setTitle(APP_TITLE);
@@ -320,7 +403,6 @@ public class Main extends Application {
    * @param args
    */
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
     launch(args);
   }
 
