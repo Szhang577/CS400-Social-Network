@@ -7,8 +7,8 @@ Course: cs400
 Semester: Fall 2019
 Project name: Social Network
 Team Members:
-1. Ruokai Yin, lecture1, and ryin25@wisc.edu
-2. member name2, lecture, and email2@wisc.edu
+1. Ruokai Yin, lecture 1, and ryin25@wisc.edu
+2. Seanna Zhang, lecture 2, and szhang577@wisc.edu
 3. member name3, lecture, and email3@wisc.edu
 4. member name4, lecture, and email4@wisc.edu
 
