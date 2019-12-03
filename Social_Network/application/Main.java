@@ -43,11 +43,12 @@ import java.util.Random;
  *
  */
 public class Main extends Application {
-
+	//program size and title
   private static final double WINDOW_WIDTH = 1170;
   private static final double WINDOW_HEIGHT = 800;
   private static final String APP_TITLE = "Weibo Social Network";
-
+  
+  //Box objects within the program
   public SocialNetwork socialNetwork;
   public Canvas graphCanvas;
   private GraphicsContext gc;
@@ -60,37 +61,51 @@ public class Main extends Application {
   private int numOfConnectedGraph;
   private Random rand = new Random();
 
-
+  /**
+   * @author Kaiwen Shen
+   *
+   */
+  //Status box: show user the last instruction
   private void setUpstatusBox() {
 		statusBox = new VBox(10);
 		statusBox.setPrefHeight(150);
 		Label text = new Label("Status Message:\n ");
 		Label message = new Label("No Instruction Yet");
+		
+		//If instruction is found, set content to it
 		if(getCurrentInstruction()!= null) {
 			message.setText(getCurrentInstruction());
 		}
-		statusBox.getChildren().addAll(text, message);
 		
+		statusBox.getChildren().addAll(text, message);
+		//Box border
 		statusBox.setStyle("-fx-border-color: blue;\n" + "-fx-border-widths: 2;\n" + 
 		"-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
-	}
-	private String getCurrentInstruction() {
+  }
+  
+  //Helper method to get the last instruction
+  private String getCurrentInstruction() {
 		return null;
-	}
-
+  }
+  
+  //BasicMenu: add,remove users and friendship, load file
   private void setUpBasicMenuBox() {
     basicMenuBox = new HBox(10);
-
+    
+    //create button objects
     VBox buttonCollections = new VBox(35);
     Button addUser = new Button("Add User");
     Button removeUser = new Button("Remove User");
     Button addFriends = new Button("Add Friendship");
     Button removeFriends = new Button("Remove Friendship");
     Button loadFile = new Button("Load File");
-
+    
+   
     buttonCollections.getChildren().addAll(addUser, removeUser, addFriends, removeFriends,
         loadFile);
-
+    
+    
+    //create text input objects
     VBox inputCollections = new VBox(35);
     TextField addPerson = new TextField();
     addPerson.setMaxWidth(410);
@@ -118,10 +133,14 @@ public class Main extends Application {
     inputCollections.getChildren().addAll(addPerson, removePerson, addFriendship, removeFriendship,
         loadFileName);
 
+    //combine buttons and inputs
     basicMenuBox.getChildren().addAll(buttonCollections, inputCollections);
-
+    
+    //set up buttons
     addUser.setOnAction((event) -> {
       String name = addPerson.getText();
+      
+      //draw node if input is valid
       if (name != null && !name.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
         double x = (double) (rand.nextInt(400) + 50);
@@ -136,8 +155,10 @@ public class Main extends Application {
       }
     });
 
+    
     removeUser.setOnAction((event) -> {
       String name = removePerson.getText();
+      //delete node if input is valid
       if (name != null && !name.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
         double[] coord = getCoordinatesFromName(name);
@@ -147,9 +168,11 @@ public class Main extends Application {
       }
     });
 
+    
     addFriends.setOnAction((event) -> {
       String user1 = addFriend1.getText();
       String user2 = addFriend2.getText();
+      //draw friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
         double[] coord1 = getCoordinatesFromName(user1);
@@ -163,6 +186,7 @@ public class Main extends Application {
     removeFriends.setOnAction((event) -> {
       String user1 = removeFriend1.getText();
       String user2 = removeFriend2.getText();
+      //remove friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
         double[] coord1 = getCoordinatesFromName(user1);
@@ -175,6 +199,7 @@ public class Main extends Application {
 
     loadFile.setOnAction((event) -> {
       String fileName = loadFileName.getText();
+      //establish current network if file is valid
       if (fileName != null && !fileName.isEmpty()) {
         File file = new File(fileName);
         socialNetwork.loadFromFile(file);
@@ -188,14 +213,18 @@ public class Main extends Application {
    * @author Ruokai
    *
    */
+  /*AdvanceMenu: clear network, undo last instruction, exit program with pop-ups
+  	export current network, find mutual friend, find friend sequences, search for a user*/
+  				
   private void setUpAdvanceMenuBox() {
     advanceMenuBox = new VBox(35);
-
+    //set up clear undo and exit
     HBox buttonCollection1 = new HBox(30);
     Button clear = new Button("Clear");
     Button undo = new Button("Undo");
     Button exit = new Button("Exit");
     
+    //clear alert pop-up
     Alert a = new Alert(AlertType.NONE); 
     EventHandler<ActionEvent> eventClear = new EventHandler<ActionEvent>() { 
     	public void handle(ActionEvent e) 
@@ -211,6 +240,7 @@ public class Main extends Application {
     	} 
     }; 
     
+    //undo alert pop-up
     EventHandler<ActionEvent> eventUndo = new EventHandler<ActionEvent>() { 
     	public void handle(ActionEvent e) 
     	{ 
@@ -225,6 +255,7 @@ public class Main extends Application {
     	} 
     }; 
     
+    //exit dialog pop-up
     EventHandler<ActionEvent> eventExit = new EventHandler<ActionEvent>() { 
     	public void handle(ActionEvent e) 
     	{ 
@@ -232,13 +263,16 @@ public class Main extends Application {
     		dialog.setContentText("If you wish to save your network\nPlease enter file name:");
     		dialog.setTitle("Exit Dialog");
     		
+    		//custom buttons
     		ButtonType save = new ButtonType("Save",ButtonData.OK_DONE);
     		ButtonType exit_without_save = new ButtonType("Exit without Save",ButtonData.OK_DONE);
     		
+    		//add save, exit without save and cancel
     		dialog.getDialogPane().getButtonTypes().setAll(save, exit_without_save);
-    		
+    		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
     		Optional<String> result = dialog.showAndWait();
     		
+    		//if input is valid ... else...
     		dialog.setResultConverter(dialogButton -> {
     		    if (result.get() != null) {
         		    return null;//...user chose save
@@ -259,6 +293,7 @@ public class Main extends Application {
     
     buttonCollection1.getChildren().addAll(clear, undo, exit);
     
+    //set up buttons
     VBox buttonCollection2 = new VBox(35);
     Button export = new Button("Export");
     Button mutual = new Button("Mutual Friend");
@@ -267,6 +302,7 @@ public class Main extends Application {
     
     buttonCollection2.getChildren().addAll(export, mutual, sequence_friends, search);
     
+    //set up text inputs
     VBox inputCollection = new VBox(35);
     TextField exportInp = new TextField();
     exportInp.setMaxWidth(410);
@@ -308,6 +344,7 @@ public class Main extends Application {
     });
   }
 
+  //helper method for reading the num of grps
   private Label updateNumOfConnectedGroups(int numOfGroups) {
     String numUpdate = "Number of Connected Groups is " + numOfGroups;
     Label numLabel = new Label(numUpdate);
@@ -315,6 +352,7 @@ public class Main extends Application {
 
   }
 
+  // method for drawing the network
   private void drawGraph(GraphicsContext graph) {
     statusGraphBox = new VBox(20);
     infoBox = new HBox(20);
@@ -322,7 +360,7 @@ public class Main extends Application {
     Label updateNum = updateNumOfConnectedGroups(this.numOfConnectedGraph);
     gc.setFill(Color.BLUE);
     gc.setFont(new Font(20));
-//    gc.fillText("Weibo Social Network", 200, 25);
+    // gc.fillText("Weibo Social Network", 200, 25);
     // Draw a line
     // Lines use the stroke color
     gc.setStroke(Color.BLUE);
@@ -348,6 +386,7 @@ public class Main extends Application {
 
   }
 
+  //helper method for drawing circles
   private WritableImage createdTextedCircle(String name) {
     StackPane stackPane = new StackPane();
     stackPane.setPrefSize(40, 40);
@@ -393,7 +432,7 @@ public class Main extends Application {
   private void setSelectedUser(String person) {
 
   }
-
+  
   @Override
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
