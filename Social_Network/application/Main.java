@@ -7,6 +7,8 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -23,6 +25,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -41,7 +44,7 @@ import java.util.Random;
  */
 public class Main extends Application {
 
-  private static final double WINDOW_WIDTH = 1200;
+  private static final double WINDOW_WIDTH = 1170;
   private static final double WINDOW_HEIGHT = 800;
   private static final String APP_TITLE = "Weibo Social Network";
 
@@ -53,15 +56,14 @@ public class Main extends Application {
   public VBox leftSide;
   public HBox basicMenuBox;
   public VBox advanceMenuBox;
+  public HBox infoBox;
   private int numOfConnectedGraph;
   private Random rand = new Random();
 
-  private void setUpgraphBox() {
-
-  }
 
   private void setUpstatusBox() {
 		statusBox = new VBox(10);
+		statusBox.setPrefHeight(150);
 		Label text = new Label("Status Message:\n ");
 		Label message = new Label("No Instruction Yet");
 		if(getCurrentInstruction()!= null) {
@@ -69,6 +71,8 @@ public class Main extends Application {
 		}
 		statusBox.getChildren().addAll(text, message);
 		
+		statusBox.setStyle("-fx-border-color: blue;\n" + "-fx-border-widths: 2;\n" + 
+		"-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
 	}
 	private String getCurrentInstruction() {
 		return null;
@@ -77,7 +81,7 @@ public class Main extends Application {
   private void setUpBasicMenuBox() {
     basicMenuBox = new HBox(10);
 
-    VBox buttonCollections = new VBox(20);
+    VBox buttonCollections = new VBox(35);
     Button addUser = new Button("Add User");
     Button removeUser = new Button("Remove User");
     Button addFriends = new Button("Add Friendship");
@@ -87,7 +91,7 @@ public class Main extends Application {
     buttonCollections.getChildren().addAll(addUser, removeUser, addFriends, removeFriends,
         loadFile);
 
-    VBox inputCollections = new VBox(20);
+    VBox inputCollections = new VBox(35);
     TextField addPerson = new TextField();
     addPerson.setMaxWidth(410);
 
@@ -120,11 +124,11 @@ public class Main extends Application {
       String name = addPerson.getText();
       if (name != null && !name.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
-        double x = (double) (rand.nextInt(600) + 50);
-        double y = (double) (rand.nextInt(600) + 50);
+        double x = (double) (rand.nextInt(400) + 50);
+        double y = (double) (rand.nextInt(400) + 50);
         while (getNameFromCoordinates(x, y) != null) {
-          x = (double) (rand.nextInt(600) + 50);
-          y = (double) (rand.nextInt(600) + 50);
+          x = (double) (rand.nextInt(400) + 50);
+          y = (double) (rand.nextInt(400) + 50);
         }
         drawNode(gc, name, x, y);
       } else {
@@ -185,9 +189,9 @@ public class Main extends Application {
    *
    */
   private void setUpAdvanceMenuBox() {
-    advanceMenuBox = new VBox(20);
+    advanceMenuBox = new VBox(35);
 
-    HBox buttonCollection1 = new HBox(10);
+    HBox buttonCollection1 = new HBox(30);
     Button clear = new Button("Clear");
     Button undo = new Button("Undo");
     Button exit = new Button("Exit");
@@ -253,39 +257,44 @@ public class Main extends Application {
     undo.setOnAction(eventUndo);
     exit.setOnAction(eventExit);
     
-    HBox buttonCollection2 = new HBox(10);
+    buttonCollection1.getChildren().addAll(clear, undo, exit);
+    
+    VBox buttonCollection2 = new VBox(35);
     Button export = new Button("Export");
+    Button mutual = new Button("Mutual Friend");
+    Button sequence_friends = new Button("Friends Sequences");
+    Button search = new Button("Search");
+    
+    buttonCollection2.getChildren().addAll(export, mutual, sequence_friends, search);
+    
+    VBox inputCollection = new VBox(35);
     TextField exportInp = new TextField();
     exportInp.setMaxWidth(410);
 
-    HBox buttonCollection3 = new HBox(10);
-    Button mutual = new Button("Mutual Friend");
+    HBox mutualFriend = new HBox(10);
     TextField mutualFriend1 = new TextField();
     mutualFriend1.setMaxWidth(200);
     TextField mutualFriend2 = new TextField();
     mutualFriend2.setMaxWidth(200);
+    mutualFriend.getChildren().addAll(mutualFriend1, mutualFriend2);
 
-    HBox buttonCollection4 = new HBox(10);
-    Button sequence_friends = new Button("Sequence of Friends");
+
+    HBox sequence = new HBox(10);
     TextField sequence1 = new TextField();
     sequence1.setMaxWidth(200);
     TextField sequence2 = new TextField();
     sequence2.setMaxWidth(200);
+    sequence.getChildren().addAll(sequence1, sequence2);
 
-    HBox buttonCollection5 = new HBox(10);
-    Button search = new Button("Search");
     TextField searchInp = new TextField();
     searchInp.setMaxWidth(410);
+    
+    inputCollection.getChildren().addAll(exportInp, mutualFriend, sequence, searchInp);
 
-    buttonCollection1.getChildren().addAll(clear, undo, exit);
-    buttonCollection2.getChildren().addAll(export, exportInp);
-    buttonCollection3.getChildren().addAll(mutual, mutualFriend1, mutualFriend2);
-    buttonCollection4.getChildren().addAll(sequence_friends,sequence1,sequence2);
-    buttonCollection5.getChildren().addAll(search, searchInp);
+    HBox buttonAndInput = new HBox(10);
+    buttonAndInput.getChildren().addAll(buttonCollection2, inputCollection);
 
-
-    advanceMenuBox.getChildren().addAll(buttonCollection1, buttonCollection2, buttonCollection3,
-        buttonCollection4, buttonCollection5);
+    advanceMenuBox.getChildren().addAll(buttonCollection1, buttonAndInput);
     
     // actions
     
@@ -308,22 +317,34 @@ public class Main extends Application {
 
   private void drawGraph(GraphicsContext graph) {
     statusGraphBox = new VBox(20);
+    infoBox = new HBox(20);
+    infoBox.prefWidth(580);
     Label updateNum = updateNumOfConnectedGroups(this.numOfConnectedGraph);
     gc.setFill(Color.BLUE);
-    gc.setFont(new Font(30));
-    gc.fillText("Weibo Social Network", 200, 600);
+    gc.setFont(new Font(20));
+//    gc.fillText("Weibo Social Network", 200, 25);
     // Draw a line
     // Lines use the stroke color
     gc.setStroke(Color.BLUE);
     gc.setLineWidth(2);
-    gc.strokeLine(40, 100, 250, 50);
-    gc.drawImage(createdTextedCircle("Mike"), 40 - 15, 100 - 15);
-    gc.drawImage(createdTextedCircle("Abby"), 250 - 15, 50 - 15);
+    gc.strokeLine(60, 120, 270, 70);
+    gc.drawImage(createdTextedCircle("Mike"), 40, 100);
+    gc.drawImage(createdTextedCircle("Abby"), 250, 50);
     gc.drawImage(createdTextedCircle("Eric"), 70, 200);
     gc.drawImage(createdTextedCircle("Kevin"), 200, 300);
     gc.drawImage(createdTextedCircle("Tim"), 230, 260);
     gc.drawImage(createdTextedCircle("Jordon"), 180, 400);
-    statusGraphBox.getChildren().addAll(updateNum, graphCanvas);
+    Text appTitle = new Text("Weibo Social Network");
+    appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" +
+    "-fx-font-size: 20px;\n");
+    appTitle.setFill(Color.rgb(207, 18, 22));
+    
+    infoBox.getChildren().addAll(appTitle);
+    infoBox.setAlignment(Pos.CENTER);
+    
+    statusGraphBox.getChildren().addAll(updateNum, infoBox, graphCanvas);
+    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
+        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
 
   }
 
@@ -377,20 +398,30 @@ public class Main extends Application {
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
     BorderPane pane = new BorderPane();
-    graphCanvas = new Canvas(750, 700);
+    pane.setPadding(new Insets(10,10,10,10));
+    graphCanvas = new Canvas(580, 500);
     gc = graphCanvas.getGraphicsContext2D();
     drawGraph(gc);
 
-    VBox rightBox = new VBox(30);
+    VBox rightBox = new VBox(35);
     setUpBasicMenuBox();
     setUpAdvanceMenuBox();
     rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
+    rightBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
+        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
 
     pane.setRight(rightBox);
     setUpstatusBox();
-    leftSide = new VBox(20);
-	  leftSide.getChildren().addAll(statusGraphBox,statusBox );
-	  pane.setLeft(leftSide);
+    
+
+    pane.setLeft(statusGraphBox);
+//    leftSide = new VBox(20);
+//	  leftSide.getChildren().addAll(statusGraphBox, statusBox );
+//	  pane.setLeft(leftSide);
+
+    pane.setBottom(statusBox);
+    
+    
     Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     primaryStage.setTitle(APP_TITLE);
