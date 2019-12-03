@@ -9,8 +9,8 @@ Project name:Weibo Social Network
 Team Members:
 1. Ruokai Yin, lecture 1, and ryin25@wisc.edu
 2. Seanna Zhang, lecture 2, and szhang577@wisc.edu
-3. Kaiwen Shen, lecture2, and kshen26@wisc.edu
-4. member name4, lecture, and email4@wisc.edu
+3. Kaiwen Shen, lecture 2, and kshen26@wisc.edu
+4. Erzhen Zhang, lecture 2, and ezhang25@wisc.edu
 
  
 
