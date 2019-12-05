@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Optional;
 import java.util.Random;
+import javafx.scene.layout.AnchorPane;
 
 /**
  * @author Siyuan
@@ -60,6 +61,7 @@ public class Main extends Application {
   public HBox infoBox;
   private int numOfConnectedGraph;
   private Random rand = new Random();
+  private AnchorPane anchorPane = new AnchorPane();
 
   /**
    * @author Kaiwen Shen
@@ -366,7 +368,7 @@ public class Main extends Application {
     gc.setStroke(Color.BLUE);
     gc.setLineWidth(2);
     gc.strokeLine(60, 120, 270, 70);
-    gc.drawImage(createdTextedCircle("Mike"), 40, 100);
+    gc.drawImage(createdTextedCircle(""), 40, 100);
     gc.drawImage(createdTextedCircle("Abby"), 250, 50);
     gc.drawImage(createdTextedCircle("Eric"), 70, 200);
     gc.drawImage(createdTextedCircle("Kevin"), 200, 300);
@@ -383,6 +385,14 @@ public class Main extends Application {
     statusGraphBox.getChildren().addAll(updateNum, infoBox, graphCanvas);
     statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
         "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
+    
+    anchorPane.getChildren().addAll(statusGraphBox);
+    Button test1 = new Button("Mike");
+    test1.setStyle("-fx-background-color: transparent;");
+    AnchorPane.setTopAnchor(test1, 210.0);
+    AnchorPane.setLeftAnchor(test1, 60.0);
+    anchorPane.getChildren().addAll(test1);
+    
 
   }
 
@@ -452,8 +462,8 @@ public class Main extends Application {
     pane.setRight(rightBox);
     setUpstatusBox();
     
-
-    pane.setLeft(statusGraphBox);
+    
+    pane.setLeft(anchorPane);
 //    leftSide = new VBox(20);
 //	  leftSide.getChildren().addAll(statusGraphBox, statusBox );
 //	  pane.setLeft(leftSide);
