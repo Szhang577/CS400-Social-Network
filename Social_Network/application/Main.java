@@ -19,6 +19,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
@@ -35,6 +36,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Random;
 import javafx.scene.layout.AnchorPane;
@@ -62,6 +65,7 @@ public class Main extends Application {
   private int numOfConnectedGraph;
   private Random rand = new Random();
   private AnchorPane anchorPane = new AnchorPane();
+  private ArrayList<Person> userList;
 
   /**
    * @author Kaiwen Shen
@@ -110,30 +114,57 @@ public class Main extends Application {
     //create text input objects
     VBox inputCollections = new VBox(35);
     TextField addPerson = new TextField();
-    addPerson.setMaxWidth(410);
+    addPerson.setMaxWidth(350);
+    addPerson.setPrefWidth(300);
 
-    TextField removePerson = new TextField();
-    removePerson.setMaxWidth(410);
+    ComboBox<String> personList = new ComboBox<String>();
+    personList.setMaxWidth(350);
+    personList.setPrefWidth(300);
+
+
 
     HBox addFriendship = new HBox(10);
-    TextField addFriend1 = new TextField();
-    addFriend1.setMaxWidth(200);
-    TextField addFriend2 = new TextField();
-    addFriend2.setMaxWidth(200);
-    addFriendship.getChildren().addAll(addFriend1, addFriend2);
+    ComboBox<String> friendList1 = new ComboBox<String>();
+    friendList1.setMaxWidth(170);
+    friendList1.setPrefWidth(145);
+
+
+    ComboBox<String> friendList2 = new ComboBox<String>();
+    friendList2.setMaxWidth(170);
+    friendList2.setPrefWidth(145);
+
+
+    addFriendship.getChildren().addAll(friendList1, friendList2);
 
     HBox removeFriendship = new HBox(10);
-    TextField removeFriend1 = new TextField();
-    removeFriend1.setMaxWidth(200);
-    TextField removeFriend2 = new TextField();
-    removeFriend2.setMaxWidth(200);
-    removeFriendship.getChildren().addAll(removeFriend1, removeFriend2);
+    ComboBox<String> removeFriendList1 = new ComboBox<String>();
+    removeFriendList1.setMaxWidth(170);
+    removeFriendList1.setPrefWidth(145);
+
+    ComboBox<String> removeFriendList2 = new ComboBox<String>();
+    removeFriendList2.setMaxWidth(170);
+    removeFriendList2.setPrefWidth(145);
+
+    removeFriendship.getChildren().addAll(removeFriendList1, removeFriendList2);
 
     TextField loadFileName = new TextField();
-    loadFileName.setMaxWidth(410);
+    loadFileName.setMaxWidth(350);
+    loadFileName.setPrefWidth(300);
 
-    inputCollections.getChildren().addAll(addPerson, removePerson, addFriendship, removeFriendship,
+    if (userList != null) {
+      for (int i = 0; i < userList.size(); i++) {
+        String userName = userList.get(i).getName();
+        personList.getItems().add(userName);
+        friendList1.getItems().add(userName);
+        friendList2.getItems().add(userName);
+        removeFriendList1.getItems().add(userName);
+        removeFriendList2.getItems().add(userName);
+      }
+    }
+    
+    inputCollections.getChildren().addAll(addPerson, personList, addFriendship, removeFriendship,
         loadFileName);
+    
 
     //combine buttons and inputs
     basicMenuBox.getChildren().addAll(buttonCollections, inputCollections);
@@ -159,7 +190,7 @@ public class Main extends Application {
 
     
     removeUser.setOnAction((event) -> {
-      String name = removePerson.getText();
+      String name = personList.getValue();
       //delete node if input is valid
       if (name != null && !name.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
@@ -172,8 +203,8 @@ public class Main extends Application {
 
     
     addFriends.setOnAction((event) -> {
-      String user1 = addFriend1.getText();
-      String user2 = addFriend2.getText();
+      String user1 = friendList1.getValue();
+      String user2 = friendList2.getValue();
       //draw friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
@@ -186,8 +217,8 @@ public class Main extends Application {
     });
 
     removeFriends.setOnAction((event) -> {
-      String user1 = removeFriend1.getText();
-      String user2 = removeFriend2.getText();
+      String user1 = removeFriendList1.getValue();
+      String user2 = removeFriendList2.getValue();
       //remove friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         gc = graphCanvas.getGraphicsContext2D();
@@ -307,25 +338,47 @@ public class Main extends Application {
     //set up text inputs
     VBox inputCollection = new VBox(35);
     TextField exportInp = new TextField();
-    exportInp.setMaxWidth(410);
+    exportInp.setMaxWidth(350);
+    exportInp.setPrefWidth(300);
 
     HBox mutualFriend = new HBox(10);
-    TextField mutualFriend1 = new TextField();
-    mutualFriend1.setMaxWidth(200);
-    TextField mutualFriend2 = new TextField();
-    mutualFriend2.setMaxWidth(200);
+    ComboBox<String> mutualFriend1 = new ComboBox<String>();
+//    TextField mutualFriend1 = new TextField();
+    mutualFriend1.setMaxWidth(170);
+    mutualFriend1.setPrefWidth(145);
+    ComboBox<String> mutualFriend2 = new ComboBox<String>();
+//    TextField mutualFriend2 = new TextField();
+    mutualFriend2.setMaxWidth(170);
+    mutualFriend2.setPrefWidth(145);
     mutualFriend.getChildren().addAll(mutualFriend1, mutualFriend2);
 
 
     HBox sequence = new HBox(10);
-    TextField sequence1 = new TextField();
-    sequence1.setMaxWidth(200);
-    TextField sequence2 = new TextField();
-    sequence2.setMaxWidth(200);
+    ComboBox<String> sequence1 = new ComboBox<String>();
+//    TextField sequence1 = new TextField();
+    sequence1.setMaxWidth(170);
+    sequence1.setPrefWidth(145);
+    ComboBox<String> sequence2 = new ComboBox<String>();
+//    TextField sequence2 = new TextField();
+    sequence2.setMaxWidth(170);
+    sequence2.setPrefWidth(145);
     sequence.getChildren().addAll(sequence1, sequence2);
 
-    TextField searchInp = new TextField();
-    searchInp.setMaxWidth(410);
+    ComboBox<String> searchInp = new ComboBox<String>();
+//    TextField searchInp = new TextField();
+    searchInp.setMaxWidth(350);
+    searchInp.setPrefWidth(300);
+    
+    if (userList != null) {
+      for (int i = 0; i < userList.size(); i++) {
+        String userName = userList.get(i).getName();
+        mutualFriend1.getItems().add(userName);
+        mutualFriend2.getItems().add(userName);
+        sequence1.getItems().add(userName);
+        sequence2.getItems().add(userName);
+        searchInp.getItems().add(userName);
+      }
+    }
     
     inputCollection.getChildren().addAll(exportInp, mutualFriend, sequence, searchInp);
 
@@ -337,7 +390,7 @@ public class Main extends Application {
     // actions
     
     search.setOnAction((click) -> {
-      String user = searchInp.getText();
+      String user = searchInp.getValue();
       if(user != null) {
         setSelectedUser(user);
       }else {
@@ -368,7 +421,7 @@ public class Main extends Application {
     gc.setStroke(Color.BLUE);
     gc.setLineWidth(2);
     gc.strokeLine(60, 120, 270, 70);
-    gc.drawImage(createdTextedCircle(""), 40, 100);
+    gc.drawImage(createdTextedCircle("Mike"), 40, 100);
     gc.drawImage(createdTextedCircle("Abby"), 250, 50);
     gc.drawImage(createdTextedCircle("Eric"), 70, 200);
     gc.drawImage(createdTextedCircle("Kevin"), 200, 300);
@@ -383,15 +436,15 @@ public class Main extends Application {
     infoBox.setAlignment(Pos.CENTER);
     
     statusGraphBox.getChildren().addAll(updateNum, infoBox, graphCanvas);
-    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
-        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
+//    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
+//        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
     
-    anchorPane.getChildren().addAll(statusGraphBox);
-    Button test1 = new Button("Mike");
-    test1.setStyle("-fx-background-color: transparent;");
-    AnchorPane.setTopAnchor(test1, 210.0);
-    AnchorPane.setLeftAnchor(test1, 60.0);
-    anchorPane.getChildren().addAll(test1);
+//    anchorPane.getChildren().addAll(statusGraphBox);
+//    Button test1 = new Button("Mike");
+//    test1.setStyle("-fx-background-color: transparent;");
+//    AnchorPane.setTopAnchor(test1, 210.0);
+//    AnchorPane.setLeftAnchor(test1, 60.0);
+//    anchorPane.getChildren().addAll(test1);
     
 
   }
@@ -407,7 +460,8 @@ public class Main extends Application {
     circle.setStrokeWidth(2);
     stackPane.getChildren().add(circle);
 
-    Text textContent = new Text(name + "");
+//    Text textContent = new Text(name + "");
+    Button textContent = new Button(name);
     stackPane.getChildren().add(textContent);
     SnapshotParameters parameters = new SnapshotParameters();
     parameters.setFill(Color.TRANSPARENT);
@@ -463,7 +517,7 @@ public class Main extends Application {
     setUpstatusBox();
     
     
-    pane.setLeft(anchorPane);
+    pane.setLeft(statusGraphBox);
 //    leftSide = new VBox(20);
 //	  leftSide.getChildren().addAll(statusGraphBox, statusBox );
 //	  pane.setLeft(leftSide);
