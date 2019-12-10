@@ -127,7 +127,7 @@ public class Main extends Application {
   private static final double WINDOW_HEIGHT = 800;
   private static final String APP_TITLE = "Weibo Social Network";
   private static final PseudoClass SELECTED_P_C = PseudoClass.getPseudoClass("selected");
-  private final double radius = 20 ;
+  private final double radius = 30 ;
   private final double spacing = 20 ;
   private final ObjectProperty<Circle> selectedCircle = new SimpleObjectProperty<>(); 
   private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
@@ -290,13 +290,28 @@ public class Main extends Application {
       String user1 = friendList1.getValue();
       String user2 = friendList2.getValue();
       //draw friendship if input is valid
-      if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
-        double[] coord1 = getCoordinatesFromName(user1);
-        double[] coord2 = getCoordinatesFromName(user2);
-        drawEdge(drawGraphPane, coord1[0], coord1[1], coord2[0], coord2[1]);
-      } else {
-        System.out.println("name is null");
-      }
+        try {
+          socialNetwork.addFriends(user1, user2);
+        } catch (PersonNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (DuplicateEdgesException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (DuplicatePersonException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        setUpBasicMenuBox();
+        System.out.println(socialNetwork.graph.getNode(user1));
+        ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(user1);
+        drawGraph(user1, friends);
+        try {
+          pane.setLeft(statusGraphBox);
+        } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        }
     });
 
     removeFriends.setOnAction((event) -> {
@@ -507,7 +522,7 @@ public class Main extends Application {
   }
 
   // method for drawing the network
-  private void drawGraph(String name, ArrayList<Person> adjacentcyList) {
+  private void drawGraph(String name, ArrayList<Person> adjacencyList) {
 	BorderPane drawGraphPane = new BorderPane();
 	drawGraphPane.prefWidth(580);
 	drawGraphPane.prefHeight(500);
@@ -527,7 +542,9 @@ public class Main extends Application {
     appTitle.setFill(Color.rgb(207, 18, 22));
     
     System.out.println("name");
+    if(name != null) {
     drawNode(drawGraphPane, name, 284,250 );
+    }
     
 //    if(adjacentcyList != null) {
 //    	for(int i = 0; i < adjacentcyList.length; i++) {
@@ -542,15 +559,17 @@ public class Main extends Application {
     	}
     }
     coors[44] = null;
-    for(int i = 0; i < 10; i++) {
-    	Random rand = new Random();
+    if(adjacencyList != null && adjacencyList.size() != 0) {
+      for(int i = 0; i < adjacencyList.size(); i++) {
+        Random rand = new Random();
     	int randNum = rand.nextInt(90);
     	if(coors[randNum] != null) {
-		drawNode(drawGraphPane, "qwer", 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
+		drawNode(drawGraphPane, adjacencyList.get(i).getName(), 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
 		drawEdge(drawGraphPane, 284,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
 		coors[randNum] = null;
     	}
-	}
+      }
+    }
     infoBox.getChildren().addAll(appTitle);
     infoBox.setAlignment(Pos.CENTER);
     
@@ -567,21 +586,56 @@ public class Main extends Application {
     
 
   }
+  
+  private void drawMutualFriend(String name1,String name2) {
+    List<Person> mutualFriends = new ArrayList<Person>();
+    mutualFriends = socialNetwork.getMutualFriends(name1, name2);
+    if(name1 != null) {
+      drawNode(drawGraphPane, name1, 30, 250 );
+    }
+    if(name2 != null) {
+      drawNode(drawGraphPane, name2, 550, 250 );
+    }
+    int[][]coors = new int[90][2];
+    for(int i = 0; i < 10; i++) {
+        for(int j =0; j < 9; j++ ) {
+            coors[j*10+i][0]=i;
+            coors[j*10+i][1]=j;
+        }
+    }
+    coors[40] = null;
+    coors[49] = null;
+    if(mutualFriends != null && mutualFriends.size() != 0) {
+      for(int i = 0; i < mutualFriends.size(); i++) {
+        Random rand = new Random();
+        int randNum = rand.nextInt(90);
+        if(coors[randNum] != null) {
+        drawNode(drawGraphPane, mutualFriends.get(i).getName(), 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
+        drawEdge(drawGraphPane, 30,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
+        drawEdge(drawGraphPane, 550,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
+        coors[randNum] = null;
+        }
+      }
+    }
+    
+}
 
   //helper method for drawing circles
   private void drawNode(BorderPane pane, String name, double x, double y) {
-	  selectedCircle.addListener((obs, oldSelection, newSelection) -> {
-	        if (oldSelection != null) {
-	            oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
-	        }
-	        if (newSelection != null) {
-	            newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
-	        }
-	  });
+	  
 	  StackPane stack = new StackPane();
 	  stack = createCircle(name,x, y);
 	  stack.relocate(x,y);
-	  pane.getChildren().addAll(createCircle(name,x, y));
+	  pane.getChildren().addAll(stack);
+	  selectedCircle.addListener((obs, oldSelection, newSelection) -> {
+        if (oldSelection != null) {
+            oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
+        }
+        if (newSelection != null) {
+            newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
+            System.out.println(name);
+            setSelectedUser(name);        }
+  });
 	    
 	  Label label = new Label();
 	  label.textProperty().bind(Bindings.createStringBinding(() -> {
@@ -602,6 +656,8 @@ public class Main extends Application {
 	  line.setEndY(y2);
 	  drawGraphPane.getChildren().addAll(line);
   }
+  
+  
 
   private void removeNode(BorderPane drawGraphPane, double x, double y) {
 
@@ -622,8 +678,15 @@ public class Main extends Application {
     return null;
   }
 
-  private void setSelectedUser(String person) {
-
+  private void setSelectedUser(String name) {
+    ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
+    drawGraph(name, friends);
+    try {
+        pane.setLeft(statusGraphBox);
+  } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+  }
   }
   
   private StackPane createCircle(String name,double x, double y) {
@@ -648,10 +711,19 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
-    
     pane.setPadding(new Insets(10,10,10,10));
     VBox rightBox = new VBox(35);
     drawGraph(null,null);
+    socialNetwork.addUser("p1");
+    socialNetwork.addUser("p2");
+    socialNetwork.addUser("p3");
+    
+    socialNetwork.addFriends("p1","p2");
+    socialNetwork.addFriends("p1","p3");
+    
+    
+    
+    drawGraph("p1",(ArrayList<Person>) socialNetwork.getFriends("p1"));
     setUpBasicMenuBox();
     setUpAdvanceMenuBox();
     rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);

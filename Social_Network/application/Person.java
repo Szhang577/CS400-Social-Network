@@ -29,4 +29,6 @@ public class Person {
   public void setVisited(boolean status) {
 	  this.visited = status;
   }
+  
+  
 }

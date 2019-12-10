@@ -26,7 +26,7 @@ public interface SocialNetworkADT {
 
   public List<Person> getFriends(String person);
 
-  public Set<Person> getMutualFriends(String person1, String person2);
+  public List<Person> getMutualFriends(String person1, String person2);
 
   public List<Person> getShortestPath(String person1, String person2);
 

@@ -35,11 +35,12 @@ public class SocialNetwork implements SocialNetworkADT {
     boolean nodeAdded1 = false;
     boolean nodeAdded2 = false;
     boolean edgeAdded = false;
+
     if (!person1.equals(null) && !person2.equals(null)) {
-      Person user1 = new Person(person1);
-      Person user2 = new Person(person2);
-      nodeAdded1 = graph.addNode(user1);
-      nodeAdded2 = graph.addNode(user2);
+      Person user1 = graph.getNode(person1);
+      Person user2 = graph.getNode(person2);
+//      nodeAdded1 = graph.addNode(user1);
+//      nodeAdded2 = graph.addNode(user2);
       edgeAdded = graph.addEdge(user1, user2);
     }
     if (nodeAdded1 == true && nodeAdded2 == true && edgeAdded == true) {
@@ -104,7 +105,7 @@ public class SocialNetwork implements SocialNetworkADT {
   @Override
   public List<Person> getFriends(String person) {
     // TODO Auto-generated method stub
-    List<Person> friends;
+    List<Person> friends = new ArrayList<Person>();
     if (!person.equals(null)) {
       Person user = graph.getNode(person);
       if (user.equals(null)) {
@@ -117,9 +118,9 @@ public class SocialNetwork implements SocialNetworkADT {
   }
 
   @Override
-  public Set<Person> getMutualFriends(String person1, String person2) {
+  public List<Person> getMutualFriends(String person1, String person2) {
     // TODO Auto-generated method stub
-    Set<Person> mutualFriends = new HashSet<Person>();
+    List<Person> mutualFriends = new ArrayList<Person>();
     List<Person> friendsUser1;
     List<Person> friendsUser2;
     if (!person1.equals(null) && !person2.equals(person2)) {
