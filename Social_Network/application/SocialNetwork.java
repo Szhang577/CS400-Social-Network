@@ -22,7 +22,7 @@ import java.io.FileWriter;
  */
 public class SocialNetwork implements SocialNetworkADT {
 
-  private Graph graph = new Graph();
+  public Graph graph = new Graph();
   private String operation = "";
 
   public boolean centralSet = false; // boolean to determine whether central user been set
@@ -71,6 +71,7 @@ public class SocialNetwork implements SocialNetworkADT {
   @Override
   public boolean addUser(String person) throws DuplicatePersonException {
     // TODO Auto-generated method stub
+
     boolean userAdded = false;
     if (!person.equals(null)) {
       Person user = new Person(person);
@@ -101,15 +102,15 @@ public class SocialNetwork implements SocialNetworkADT {
   }
 
   @Override
-  public Set<Person> getFriends(String person) {
+  public List<Person> getFriends(String person) {
     // TODO Auto-generated method stub
-    Set<Person> friends;
+    List<Person> friends;
     if (!person.equals(null)) {
       Person user = graph.getNode(person);
       if (user.equals(null)) {
         return null;
       }
-      friends = (Set<Person>) graph.getNeighbors(user);
+      friends = graph.getNeighbors(user);
       return friends;
     }
     return null;

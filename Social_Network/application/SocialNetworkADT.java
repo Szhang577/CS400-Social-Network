@@ -24,7 +24,7 @@ public interface SocialNetworkADT {
 
   public boolean removeUser(String person) throws PersonNotFoundException;
 
-  public Set<Person> getFriends(String person);
+  public List<Person> getFriends(String person);
 
   public Set<Person> getMutualFriends(String person1, String person2);
 
