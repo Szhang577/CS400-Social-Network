@@ -94,14 +94,19 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -130,7 +135,7 @@ public class Main extends Application {
   //Box objects within the program
   public SocialNetwork socialNetwork;
   public VBox statusGraphBox;
-  public VBox drawGraphBox;
+  public BorderPane drawGraphPane;
   public VBox statusBox;
   public VBox leftSide;
   public HBox basicMenuBox;
@@ -255,7 +260,7 @@ public class Main extends Application {
           x = (double) (rand.nextInt(400) + 50);
           y = (double) (rand.nextInt(400) + 50);
         }
-        drawNode(drawGraphBox, name, x, y);
+        drawNode(drawGraphPane, name, x, y);
       } else {
         System.out.println("name is null");
       }
@@ -267,7 +272,7 @@ public class Main extends Application {
       //delete node if input is valid
       if (name != null && !name.isEmpty()) {
         double[] coord = getCoordinatesFromName(name);
-        removeNode(drawGraphBox, coord[0], coord[1]);
+        removeNode(drawGraphPane, coord[0], coord[1]);
       } else {
         System.out.println("name is null");
       }
@@ -281,7 +286,7 @@ public class Main extends Application {
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         double[] coord1 = getCoordinatesFromName(user1);
         double[] coord2 = getCoordinatesFromName(user2);
-        drawEdge(drawGraphBox, coord1[0], coord1[1], coord2[0], coord2[1]);
+        drawEdge(drawGraphPane, coord1[0], coord1[1], coord2[0], coord2[1]);
       } else {
         System.out.println("name is null");
       }
@@ -294,7 +299,7 @@ public class Main extends Application {
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
         double[] coord1 = getCoordinatesFromName(user1);
         double[] coord2 = getCoordinatesFromName(user2);
-        removeEdge(drawGraphBox, coord1[0], coord1[1], coord2[0], coord2[1]);
+        removeEdge(drawGraphPane, coord1[0], coord1[1], coord2[0], coord2[1]);
       } else {
         System.out.println("name is null");
       }
@@ -479,7 +484,9 @@ public class Main extends Application {
 
   // method for drawing the network
   private void drawGraph(String name, ArrayList[] adjacentcyList) {
-	drawGraphBox = new VBox(20);
+	BorderPane drawGraphPane = new BorderPane();
+	drawGraphPane.prefWidth(580);
+	drawGraphPane.prefHeight(500);
     statusGraphBox = new VBox(20);
     infoBox = new HBox(20);
     infoBox.prefWidth(580);
@@ -495,17 +502,34 @@ public class Main extends Application {
     "-fx-font-size: 20px;\n");
     appTitle.setFill(Color.rgb(207, 18, 22));
     
-    drawNode(drawGraphBox, name, drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
+    drawNode(drawGraphPane, name, 284,250 );
     
-    if(adjacentcyList != null) {
-    	for(int i = 0; i < adjacentcyList.length; i++) {
-    		drawNode(drawGraphBox, adjacentcyList[i].toString(), drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
+//    if(adjacentcyList != null) {
+//    	for(int i = 0; i < adjacentcyList.length; i++) {
+//    		drawNode(drawGraphBox, adjacentcyList[i].toString(), drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
+//    	}
+//    }
+    int[][]coors = new int[90][2];
+    for(int i = 0; i < 10; i++) {
+    	for(int j =0; j < 9; j++ ) {
+    		coors[j*10+i][0]=i;
+    		coors[j*10+i][1]=j;
     	}
     }
+    coors[44] = null;
+    for(int i = 0; i < 10; i++) {
+    	Random rand = new Random();
+    	int randNum = rand.nextInt(90);
+    	if(coors[randNum] != null) {
+		drawNode(drawGraphPane, "qwer", 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
+		drawEdge(drawGraphPane, 284,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
+		coors[randNum] = null;
+    	}
+	}
     infoBox.getChildren().addAll(appTitle);
     infoBox.setAlignment(Pos.CENTER);
     
-    statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphBox);
+    statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphPane);
 //    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
 //        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
     
@@ -520,25 +544,7 @@ public class Main extends Application {
   }
 
   //helper method for drawing circles
-  private WritableImage createdTextedCircle(String name) {
-    StackPane stackPane = new StackPane();
-    stackPane.setPrefSize(40, 40);
-
-    Circle circle = new Circle(40 / 2.0);
-    circle.setStroke(Color.YELLOW);
-    circle.setFill(Color.WHITE);
-    circle.setStrokeWidth(2);
-    stackPane.getChildren().add(circle);
-
-//    Text textContent = new Text(name + "");
-    Button textContent = new Button(name);
-    stackPane.getChildren().add(textContent);
-    SnapshotParameters parameters = new SnapshotParameters();
-    parameters.setFill(Color.TRANSPARENT);
-    return stackPane.snapshot(parameters, null);
-  }
-
-  private void drawNode(VBox graph, String name, double x, double y) {
+  private void drawNode(BorderPane pane, String name, double x, double y) {
 	  selectedCircle.addListener((obs, oldSelection, newSelection) -> {
 	        if (oldSelection != null) {
 	            oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
@@ -547,7 +553,10 @@ public class Main extends Application {
 	            newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
 	        }
 	  });
-	  graph.getChildren().addAll(createCircle(x, y));
+	  StackPane stack = new StackPane();
+	  stack = createCircle(name,x, y);
+	  stack.relocate(x,y);
+	  pane.getChildren().addAll(createCircle(name,x, y));
 	    
 	  Label label = new Label();
 	  label.textProperty().bind(Bindings.createStringBinding(() -> {
@@ -559,16 +568,23 @@ public class Main extends Application {
 	  }, selectedLocation));
 	    
   }
+  
+  private void drawEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
+	  Line line = new Line(); 
+	  line.setStartX(x1); 
+	  line.setStartY(y1); 
+	  line.setEndX(x2); 
+	  line.setEndY(y2);
+	  drawGraphPane.getChildren().addAll(line);
+  }
 
-  private void removeNode(VBox drawGraphBox2, double x, double y) {
+  private void removeNode(BorderPane drawGraphPane, double x, double y) {
 
   }
 
-  private void drawEdge(VBox drawGraphBox2, double x1, double y1, double x2, double y2) {
+  
 
-  }
-
-  private void removeEdge(VBox drawGraphBox2, double x1, double y1, double x2, double y2) {
+  private void removeEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
 
   }
 
@@ -585,19 +601,24 @@ public class Main extends Application {
 
   }
   
-  private Circle createCircle(double x, double y) {
+  private StackPane createCircle(String name,double x, double y) {
       Circle circle = new Circle();
       circle.getStyleClass().add("intersection");
-      circle.setCenterX(x * (10 + 20 + 20) + 10);
-      circle.setCenterY(y * (10 + 20 + 20) + 10);
-      circle.setRadius(20);
+      circle.setRadius(30);
+      
 
       circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
           selectedCircle.set(circle);
           selectedLocation.set(new Point2D(x, y));
       });
-
-      return circle ;
+      
+      Text text = new Text(name);
+      text.setBoundsType(TextBoundsType.VISUAL); 
+      StackPane stack = new StackPane();
+      stack.getChildren().addAll(circle, text);
+      stack.setPrefSize(40,40);
+      stack.relocate(x,y);
+      return stack ;
   }
 
   
