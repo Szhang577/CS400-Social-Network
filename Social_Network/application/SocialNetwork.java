@@ -141,17 +141,62 @@ public class SocialNetwork implements SocialNetworkADT {
   @Override
   public List<Person> getShortestPath(String person1, String person2) {
     // TODO Auto-generated method stub
-    Set<Person> mutualFriends = new HashSet<Person>();
-    List<Person> friendsUser1;
-    if (!person1.equals(null) && !person2.equals(person2)) {
+    List<Person> reversePath = new ArrayList<Person>();
+    List<Person> Path = new ArrayList<Person>();
+    List<Person> allusers = graph.getAllNodes();
+    if (!person1.equals(null) && !person2.equals(null)) {
+      int numOfusers = allusers.size();
       Person user1 = graph.getNode(person1);
       Person user2 = graph.getNode(person2);
-      if (user1.equals(null) || user2.equals(null)) {
+      if (user1 == null || user2 == null) {
         return null;
       }
-      friendsUser1 = graph.getNeighbors(user1);
+      Person[][] previousTable = BFS(user1);
+      Person prev = user2;
+      reversePath.add(user2);
+      while (!prev.equals(user1)) {
+        for (int i = 0; i < numOfusers; ++i) {
+          if (previousTable[i][0].equals(prev)) {
+            prev = previousTable[i][1];
+            reversePath.add(prev);
+          }
+        }
+      }
+      for (int i = reversePath.size() - 1; i >= 0; i--) {
+        Path.add(reversePath.get(i));
+      }
+
     }
-    return null;
+    return Path;
+  }
+
+  private Person[][] BFS(Person user) {
+    List<Person> allusers = graph.getAllNodes();
+    int numOfusers = allusers.size();
+    Person[][] previousTable = new Person[numOfusers][2];
+    for (int i = 0; i < numOfusers; ++i) {
+      previousTable[i][0] = allusers.get(i);
+      previousTable[i][1] = null;
+    }
+    Queue<Person> queue = new LinkedList<>();
+    queue.add(user);
+    while (!queue.isEmpty()) {
+      Person userLoop = queue.poll();
+      List<Person> friendsUserLoop = graph.getNeighbors(userLoop);
+      for (Person u : friendsUserLoop) {
+        if (u.getVisited() == false) {
+          u.setVisited(true);
+          for (int i = 0; i < numOfusers; ++i) {
+            if (previousTable[i][0].equals(u)) {
+              previousTable[i][1] = userLoop;
+            }
+          }
+          queue.add(u);
+        }
+      }
+    }
+
+    return previousTable;
   }
 
   @Override
