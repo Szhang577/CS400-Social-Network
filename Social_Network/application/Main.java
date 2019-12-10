@@ -1,13 +1,81 @@
+//package application;
+//import javafx.application.Application;
+//import javafx.beans.binding.Bindings;
+//import javafx.beans.property.ObjectProperty;
+//import javafx.beans.property.SimpleObjectProperty;
+//import javafx.css.PseudoClass;
+//import javafx.geometry.Point2D;
+//import javafx.scene.Scene;
+//import javafx.scene.control.Label;
+//import javafx.scene.control.ScrollPane;
+//import javafx.scene.input.MouseEvent;
+//import javafx.scene.layout.BorderPane;
+//import javafx.scene.layout.Pane;
+//import javafx.scene.shape.Circle;
+//import javafx.scene.shape.Line;
+//import javafx.stage.Stage;
+//
+//public class Main extends Application {
+//
+//    
+//
+//    @Override
+//    public void start(Stage primaryStage) {
+//
+//       
+//
+//        Pane grid = new Pane();
+//
+//        for (int x = 0 ; x < numColumns; x++) {
+//            double gridX = x*(spacing + radius + radius) + spacing ;
+//            grid.getChildren().add(new Line(gridX, 0, gridX, numRows*(spacing + radius + radius)));
+//        }
+//
+//        for (int y = 0; y < numRows ; y++) {
+//            double gridY = y*(spacing + radius + radius) + spacing ;
+//            grid.getChildren().add(new Line(0, gridY, numColumns*(spacing + radius + radius), gridY));
+//        }
+//
+//        for (int x = 0 ; x < numColumns; x++) {
+//            for (int y = 0 ;y < numRows ; y++) {
+//               );
+//            }
+//        }
+//
+//
+//        
+//
+//        BorderPane root = new BorderPane(new ScrollPane(grid));
+//        root.setTop(label);
+//
+//
+//        Scene scene = new Scene(root);
+//        scene.getStylesheets().add("grid.css");
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
+//    }
+//
+//    
+//
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
+//}
 /**
  * 
  */
 package application;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -24,6 +92,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -38,6 +107,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import javafx.scene.layout.AnchorPane;
@@ -51,12 +121,16 @@ public class Main extends Application {
   private static final double WINDOW_WIDTH = 1170;
   private static final double WINDOW_HEIGHT = 800;
   private static final String APP_TITLE = "Weibo Social Network";
+  private static final PseudoClass SELECTED_P_C = PseudoClass.getPseudoClass("selected");
+  private final double radius = 20 ;
+  private final double spacing = 20 ;
+  private final ObjectProperty<Circle> selectedCircle = new SimpleObjectProperty<>(); 
+  private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
   
   //Box objects within the program
   public SocialNetwork socialNetwork;
-  public Canvas graphCanvas;
-  private GraphicsContext gc;
   public VBox statusGraphBox;
+  public VBox drawGraphBox;
   public VBox statusBox;
   public VBox leftSide;
   public HBox basicMenuBox;
@@ -175,14 +249,13 @@ public class Main extends Application {
       
       //draw node if input is valid
       if (name != null && !name.isEmpty()) {
-        gc = graphCanvas.getGraphicsContext2D();
         double x = (double) (rand.nextInt(400) + 50);
         double y = (double) (rand.nextInt(400) + 50);
         while (getNameFromCoordinates(x, y) != null) {
           x = (double) (rand.nextInt(400) + 50);
           y = (double) (rand.nextInt(400) + 50);
         }
-        drawNode(gc, name, x, y);
+        drawNode(drawGraphBox, name, x, y);
       } else {
         System.out.println("name is null");
       }
@@ -193,9 +266,8 @@ public class Main extends Application {
       String name = personList.getValue();
       //delete node if input is valid
       if (name != null && !name.isEmpty()) {
-        gc = graphCanvas.getGraphicsContext2D();
         double[] coord = getCoordinatesFromName(name);
-        removeNode(gc, coord[0], coord[1]);
+        removeNode(drawGraphBox, coord[0], coord[1]);
       } else {
         System.out.println("name is null");
       }
@@ -207,10 +279,9 @@ public class Main extends Application {
       String user2 = friendList2.getValue();
       //draw friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
-        gc = graphCanvas.getGraphicsContext2D();
         double[] coord1 = getCoordinatesFromName(user1);
         double[] coord2 = getCoordinatesFromName(user2);
-        drawEdge(gc, coord1[0], coord1[1], coord2[0], coord2[1]);
+        drawEdge(drawGraphBox, coord1[0], coord1[1], coord2[0], coord2[1]);
       } else {
         System.out.println("name is null");
       }
@@ -221,10 +292,9 @@ public class Main extends Application {
       String user2 = removeFriendList2.getValue();
       //remove friendship if input is valid
       if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
-        gc = graphCanvas.getGraphicsContext2D();
         double[] coord1 = getCoordinatesFromName(user1);
         double[] coord2 = getCoordinatesFromName(user2);
-        removeEdge(gc, coord1[0], coord1[1], coord2[0], coord2[1]);
+        removeEdge(drawGraphBox, coord1[0], coord1[1], coord2[0], coord2[1]);
       } else {
         System.out.println("name is null");
       }
@@ -408,34 +478,34 @@ public class Main extends Application {
   }
 
   // method for drawing the network
-  private void drawGraph(GraphicsContext graph) {
+  private void drawGraph(String name, ArrayList[] adjacentcyList) {
+	drawGraphBox = new VBox(20);
     statusGraphBox = new VBox(20);
     infoBox = new HBox(20);
     infoBox.prefWidth(580);
     Label updateNum = updateNumOfConnectedGroups(this.numOfConnectedGraph);
-    gc.setFill(Color.BLUE);
-    gc.setFont(new Font(20));
-    // gc.fillText("Weibo Social Network", 200, 25);
-    // Draw a line
-    // Lines use the stroke color
-    gc.setStroke(Color.BLUE);
-    gc.setLineWidth(2);
-    gc.strokeLine(60, 120, 270, 70);
-    gc.drawImage(createdTextedCircle("Mike"), 40, 100);
-    gc.drawImage(createdTextedCircle("Abby"), 250, 50);
-    gc.drawImage(createdTextedCircle("Eric"), 70, 200);
-    gc.drawImage(createdTextedCircle("Kevin"), 200, 300);
-    gc.drawImage(createdTextedCircle("Tim"), 230, 260);
-    gc.drawImage(createdTextedCircle("Jordon"), 180, 400);
+//    gc.setFill(Color.BLUE);
+//    gc.setFont(new Font(20));
+//    gc.setStroke(Color.BLUE);
+//    gc.setLineWidth(2);
+//    gc.strokeLine(60, 120, 270, 70);
+
     Text appTitle = new Text("Weibo Social Network");
     appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" +
     "-fx-font-size: 20px;\n");
     appTitle.setFill(Color.rgb(207, 18, 22));
     
+    drawNode(drawGraphBox, name, drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
+    
+    if(adjacentcyList != null) {
+    	for(int i = 0; i < adjacentcyList.length; i++) {
+    		drawNode(drawGraphBox, adjacentcyList[i].toString(), drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
+    	}
+    }
     infoBox.getChildren().addAll(appTitle);
     infoBox.setAlignment(Pos.CENTER);
     
-    statusGraphBox.getChildren().addAll(updateNum, infoBox, graphCanvas);
+    statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphBox);
 //    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
 //        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
     
@@ -468,19 +538,37 @@ public class Main extends Application {
     return stackPane.snapshot(parameters, null);
   }
 
-  private void drawNode(GraphicsContext graph, String name, double x, double y) {
+  private void drawNode(VBox graph, String name, double x, double y) {
+	  selectedCircle.addListener((obs, oldSelection, newSelection) -> {
+	        if (oldSelection != null) {
+	            oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
+	        }
+	        if (newSelection != null) {
+	            newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
+	        }
+	  });
+	  graph.getChildren().addAll(createCircle(x, y));
+	    
+	  Label label = new Label();
+	  label.textProperty().bind(Bindings.createStringBinding(() -> {
+		  Point2D loc = selectedLocation.get();
+	      if (loc == null) {
+	          return "" ;
+	      }
+	      return String.format("Location: [%.0f, %.0f]", loc.getX(), loc.getY());
+	  }, selectedLocation));
+	    
+  }
+
+  private void removeNode(VBox drawGraphBox2, double x, double y) {
 
   }
 
-  private void removeNode(GraphicsContext graph, double x, double y) {
+  private void drawEdge(VBox drawGraphBox2, double x1, double y1, double x2, double y2) {
 
   }
 
-  private void drawEdge(GraphicsContext graph, double x1, double y1, double x2, double y2) {
-
-  }
-
-  private void removeEdge(GraphicsContext graph, double x1, double y1, double x2, double y2) {
+  private void removeEdge(VBox drawGraphBox2, double x1, double y1, double x2, double y2) {
 
   }
 
@@ -497,15 +585,28 @@ public class Main extends Application {
 
   }
   
+  private Circle createCircle(double x, double y) {
+      Circle circle = new Circle();
+      circle.getStyleClass().add("intersection");
+      circle.setCenterX(x * (10 + 20 + 20) + 10);
+      circle.setCenterY(y * (10 + 20 + 20) + 10);
+      circle.setRadius(20);
+
+      circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+          selectedCircle.set(circle);
+          selectedLocation.set(new Point2D(x, y));
+      });
+
+      return circle ;
+  }
+
+  
   @Override
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
     BorderPane pane = new BorderPane();
     pane.setPadding(new Insets(10,10,10,10));
-    graphCanvas = new Canvas(580, 500);
-    gc = graphCanvas.getGraphicsContext2D();
-    drawGraph(gc);
-
+    drawGraph("qwer",null);
     VBox rightBox = new VBox(35);
     setUpBasicMenuBox();
     setUpAdvanceMenuBox();
@@ -526,7 +627,7 @@ public class Main extends Application {
     
     
     Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
-
+    scene.getStylesheets().add("grid.css");
     primaryStage.setTitle(APP_TITLE);
     primaryStage.setScene(scene);
     primaryStage.show();
