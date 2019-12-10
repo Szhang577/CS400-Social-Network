@@ -30,7 +30,7 @@ public interface SocialNetworkADT {
 
   public List<Person> getShortestPath(String person1, String person2);
 
-  public Set<Graph> getConnectedComponents();
+  public int getConnectedComponents();
 
   public void loadFromFile(File file) throws FileNotFoundException, DuplicatePersonException,
       PersonNotFoundException, DuplicateEdgesException, NoEdgeExistsException;

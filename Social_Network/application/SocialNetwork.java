@@ -4,6 +4,7 @@
 package application;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -154,10 +155,35 @@ public class SocialNetwork implements SocialNetworkADT {
   }
 
   @Override
-  public Set<Graph> getConnectedComponents() {
+  public int getConnectedComponents() {
     // TODO Auto-generated method stub
-    return null;
+    int count = 0;
+    List<Person> allPerson = graph.getAllNodes();
+    List<Person> visited = new ArrayList<Person>();
+    for (int i = 0; i < allPerson.size(); i++) {
+      if (!visited.contains(allPerson.get(i))) {
+        DFSUtil(allPerson.get(i), visited);
+        count++;
+      }
+    }
+    return count;
   }
+  
+  private void DFSUtil(Person person, List<Person> visited) {
+    visited.add(person);
+    
+    List<Person> neighbors = graph.getNeighbors(person);
+    
+    if (neighbors != null && neighbors.size() != 0) {
+      for (int i = 0; i < neighbors.size(); i++) {
+        if (!visited.contains(neighbors.get(i))) {
+          DFSUtil(neighbors.get(i), visited);
+        }
+      }
+    }
+    
+  }
+
 
   @Override
   public void loadFromFile(File file) throws FileNotFoundException, DuplicatePersonException,
