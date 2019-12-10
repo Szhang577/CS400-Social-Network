@@ -17,8 +17,8 @@ import java.util.Set;
 public class Graph implements GraphADT {
 
 
-  private HashMap<Person, List<Person>> adjacencyList; // list of all person and its neighbors
-  private ArrayList<Person> allVertices; // set of all vertices
+  private HashMap<Person, List<Person>> adjacencyList = new HashMap<Person, List<Person>>(); // list of all person and its neighbors
+  private ArrayList<Person> allVertices = new ArrayList<Person>(); // set of all vertices
 
   public Graph() {
     adjacencyList = new HashMap<Person, List<Person>>();

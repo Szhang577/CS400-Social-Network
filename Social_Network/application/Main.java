@@ -133,7 +133,8 @@ public class Main extends Application {
   private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
   
   //Box objects within the program
-  public SocialNetwork socialNetwork;
+  public BorderPane pane = new BorderPane();
+  public SocialNetwork socialNetwork =new SocialNetwork();
   public VBox statusGraphBox;
   public BorderPane drawGraphPane;
   public VBox statusBox;
@@ -250,21 +251,27 @@ public class Main extends Application {
     
     //set up buttons
     addUser.setOnAction((event) -> {
+    	
       String name = addPerson.getText();
-      
-      //draw node if input is valid
-      if (name != null && !name.isEmpty()) {
-        double x = (double) (rand.nextInt(400) + 50);
-        double y = (double) (rand.nextInt(400) + 50);
-        while (getNameFromCoordinates(x, y) != null) {
-          x = (double) (rand.nextInt(400) + 50);
-          y = (double) (rand.nextInt(400) + 50);
-        }
-        drawNode(drawGraphPane, name, x, y);
-      } else {
-        System.out.println("name is null");
-      }
-    });
+      try {
+		socialNetwork.addUser(name);
+	
+	} catch (DuplicatePersonException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+ 
+      setUpBasicMenuBox();
+      System.out.println(socialNetwork.graph.getNode(name));
+      ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
+      drawGraph(name, friends);
+      try {
+    	  pane.setLeft(statusGraphBox);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+      } );
 
     
     removeUser.setOnAction((event) -> {
@@ -310,7 +317,24 @@ public class Main extends Application {
       //establish current network if file is valid
       if (fileName != null && !fileName.isEmpty()) {
         File file = new File(fileName);
-        socialNetwork.loadFromFile(file);
+        try {
+			socialNetwork.loadFromFile(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DuplicatePersonException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PersonNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DuplicateEdgesException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoEdgeExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
       } else {
         System.out.println("name is null");
       }
@@ -483,7 +507,7 @@ public class Main extends Application {
   }
 
   // method for drawing the network
-  private void drawGraph(String name, ArrayList[] adjacentcyList) {
+  private void drawGraph(String name, ArrayList<Person> adjacentcyList) {
 	BorderPane drawGraphPane = new BorderPane();
 	drawGraphPane.prefWidth(580);
 	drawGraphPane.prefHeight(500);
@@ -502,6 +526,7 @@ public class Main extends Application {
     "-fx-font-size: 20px;\n");
     appTitle.setFill(Color.rgb(207, 18, 22));
     
+    System.out.println("name");
     drawNode(drawGraphPane, name, 284,250 );
     
 //    if(adjacentcyList != null) {
@@ -620,15 +645,13 @@ public class Main extends Application {
       stack.relocate(x,y);
       return stack ;
   }
-
-  
   @Override
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
-    BorderPane pane = new BorderPane();
+    
     pane.setPadding(new Insets(10,10,10,10));
-    drawGraph("qwer",null);
     VBox rightBox = new VBox(35);
+    drawGraph(null,null);
     setUpBasicMenuBox();
     setUpAdvanceMenuBox();
     rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
