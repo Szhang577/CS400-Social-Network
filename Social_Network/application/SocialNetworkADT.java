@@ -12,10 +12,10 @@ import java.util.Set;
  *
  */
 public interface SocialNetworkADT {
-  public boolean addFriends(String person1, String person2);
-  public boolean removeFriends(String person1, String person2);
-  public boolean addUser(String person);
-  public boolean removeUser(String person);
+  public boolean addFriends(String person1, String person2) throws DuplicatePersonException, PersonNotFoundException, DuplicateEdgesException;
+  public boolean removeFriends(String person1, String person2) throws PersonNotFoundException, NoEdgeExistsException;
+  public boolean addUser(String person) throws DuplicatePersonException;
+  public boolean removeUser(String person) throws PersonNotFoundException;
   public Set<Person> getFriends(String person);
   public Set<Person> getMutualFriends(String person1, String person2);
   public List<Person> getShortestPath(String person1, String person2);
