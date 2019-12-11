@@ -12,7 +12,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
@@ -37,11 +39,17 @@ public class SocialNetwork implements SocialNetworkADT {
     boolean edgeAdded = false;
 
     if (!person1.equals(null) && !person2.equals(null)) {
-      Person user1 = graph.getNode(person1);
-      Person user2 = graph.getNode(person2);
-      // nodeAdded1 = graph.addNode(user1);
-      // nodeAdded2 = graph.addNode(user2);
-      edgeAdded = graph.addEdge(user1, user2);
+      if (person1.equals(person2)) {
+        throw new DuplicatePersonException(
+            "Unable to add friends because two selected user are same");
+      } else {
+        Person user1 = graph.getNode(person1);
+        Person user2 = graph.getNode(person2);
+        // nodeAdded1 = graph.addNode(user1);
+        // nodeAdded2 = graph.addNode(user2);
+        edgeAdded = graph.addEdge(user1, user2);
+      }
+
     }
     if (nodeAdded1 == true && nodeAdded2 == true && edgeAdded == true) {
       operation = operation.concat("a " + person1 + " " + person2 + "\n");
@@ -53,13 +61,18 @@ public class SocialNetwork implements SocialNetworkADT {
 
   @Override
   public boolean removeFriends(String person1, String person2)
-      throws PersonNotFoundException, NoEdgeExistsException {
+      throws PersonNotFoundException, NoEdgeExistsException, DuplicatePersonException {
     // TODO Auto-generated method stub
     boolean nodeRemoved = false;
     if (!person1.equals(null) && !person2.equals(null)) {
-      Person user1 = graph.getNode(person1);
-      Person user2 = graph.getNode(person2);
-      nodeRemoved = graph.removeEdge(user1, user2);
+      if (person1.equals(person2)) {
+        throw new DuplicatePersonException(
+            "Unable to remove friends because two selected user are same");
+      } else {
+        Person user1 = graph.getNode(person1);
+        Person user2 = graph.getNode(person2);
+        nodeRemoved = graph.removeEdge(user1, user2);
+      }
     }
     if (nodeRemoved) {
       operation = operation.concat("r " + person1 + " " + person2 + "\n");
@@ -69,14 +82,18 @@ public class SocialNetwork implements SocialNetworkADT {
     }
   }
 
-  @Override
   public boolean addUser(String person) throws DuplicatePersonException {
     // TODO Auto-generated method stub
 
     boolean userAdded = false;
     if (!person.equals(null)) {
-      Person user = new Person(person);
-      userAdded = graph.addNode(user);
+      if (graph.getNode(person) == null) {
+        Person user = new Person(person);
+        userAdded = graph.addNode(user);
+      } else {
+        throw new DuplicatePersonException(
+            "Unable to add because already have same user in social" + " network.");
+      }
     }
     if (userAdded) {
       operation = operation.concat("a " + person + "\n");
@@ -117,15 +134,20 @@ public class SocialNetwork implements SocialNetworkADT {
   }
 
   @Override
-  public List<Person> getMutualFriends(String person1, String person2) {
+  public List<Person> getMutualFriends(String person1, String person2)
+      throws DuplicatePersonException {
     // TODO Auto-generated method stub
     List<Person> mutualFriends = new ArrayList<Person>();
     List<Person> friendsUser1;
     List<Person> friendsUser2;
-    if (!person1.equals(null) && !person2.equals(person2)) {
+    if (person1 != null && person2 != null) {
+      if (person1.equals(person2)) {
+        throw new DuplicatePersonException(
+            "Unable to get mutual friends because two selected user are same");
+      }
       Person user1 = graph.getNode(person1);
       Person user2 = graph.getNode(person2);
-      if (user1.equals(null) || user2.equals(null)) {
+      if (user1 == null || user2 == null) {
         return null;
       }
       friendsUser1 = graph.getNeighbors(user1);
@@ -141,34 +163,38 @@ public class SocialNetwork implements SocialNetworkADT {
     return mutualFriends;
   }
 
-  @Override
-  public List<Person> getShortestPath(String person1, String person2) {
+  public List<Person> getShortestPath(String person1, String person2)
+      throws DuplicatePersonException {
     // TODO Auto-generated method stub
     List<Person> reversePath = new ArrayList<Person>();
     List<Person> Path = new ArrayList<Person>();
     List<Person> allusers = graph.getAllNodes();
     if (!person1.equals(null) && !person2.equals(null)) {
-      int numOfusers = allusers.size();
-      Person user1 = graph.getNode(person1);
-      Person user2 = graph.getNode(person2);
-      if (user1 == null || user2 == null) {
-        return null;
-      }
-      Person[][] previousTable = BFS(user1);
-      Person prev = user2;
-      reversePath.add(user2);
-      while (!prev.equals(user1)) {
-        for (int i = 0; i < numOfusers; ++i) {
-          if (previousTable[i][0].equals(prev)) {
-            prev = previousTable[i][1];
-            reversePath.add(prev);
+      if (person1.equals(person2)) {
+        throw new DuplicatePersonException(
+            "Unable to find shortest path because two selected user are same");
+      } else {
+        int numOfusers = allusers.size();
+        Person user1 = graph.getNode(person1);
+        Person user2 = graph.getNode(person2);
+        if (user1 == null || user2 == null) {
+          return null;
+        }
+        Person[][] previousTable = BFS(user1);
+        Person prev = user2;
+        reversePath.add(user2);
+        while (!prev.equals(user1)) {
+          for (int i = 0; i < numOfusers; ++i) {
+            if (previousTable[i][0].equals(prev)) {
+              prev = previousTable[i][1];
+              reversePath.add(prev);
+            }
           }
         }
+        for (int i = reversePath.size() - 1; i >= 0; i--) {
+          Path.add(reversePath.get(i));
+        }
       }
-      for (int i = reversePath.size() - 1; i >= 0; i--) {
-        Path.add(reversePath.get(i));
-      }
-
     }
     return Path;
   }
@@ -176,12 +202,15 @@ public class SocialNetwork implements SocialNetworkADT {
   private Person[][] BFS(Person user) {
     List<Person> allusers = graph.getAllNodes();
     int numOfusers = allusers.size();
+    Person none = new Person("none");
     Person[][] previousTable = new Person[numOfusers][2];
     for (int i = 0; i < numOfusers; ++i) {
+      allusers.get(i).setVisited(false);
       previousTable[i][0] = allusers.get(i);
-      previousTable[i][1] = null;
+      previousTable[i][1] = none;
     }
     Queue<Person> queue = new LinkedList<>();
+    user.setVisited(true);
     queue.add(user);
     while (!queue.isEmpty()) {
       Person userLoop = queue.poll();
@@ -266,9 +295,20 @@ public class SocialNetwork implements SocialNetworkADT {
   @Override
   public void saveToFile(File file) throws IOException {
     // TODO Auto-generated method stub
-    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-    writer.write(operation);
-    writer.close();
+    // BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    // writer.write(operation);
+    // writer.close();
+
+    // open the file with specific file name
+    FileOutputStream fileByteStream = null; // used for print line into file
+    PrintWriter outFS = null; // user for print line into file
+
+    fileByteStream = new FileOutputStream(file);
+    outFS = new PrintWriter(fileByteStream);
+    outFS.print(operation);
+    outFS.flush();
+
+    fileByteStream.close(); // close the file
   }
 
 
