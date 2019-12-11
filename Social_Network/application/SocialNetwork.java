@@ -87,11 +87,12 @@ public class SocialNetwork implements SocialNetworkADT {
   }
 
   @Override
-  public boolean removeUser(String person) throws PersonNotFoundException {
+  public boolean removeUser(String person) throws PersonNotFoundException, NoEdgeExistsException {
     // TODO Auto-generated method stub
     boolean userRemoved = false;
-    if (!person.equals(null)) {
+    if (person != null) {
       Person user = graph.getNode(person);
+
       userRemoved = graph.removeNode(user);
     }
     if (userRemoved) {
@@ -243,7 +244,8 @@ public class SocialNetwork implements SocialNetworkADT {
       String[] words = op.split("\\s");
       String mode = words[0];
       if (mode.equals("s")) {
-
+        centralSet = true;
+        centralUser = words[1];
       } else if (mode.equals("a")) {
         if (words.length == 2) {
           addUser(words[1]);
@@ -254,6 +256,7 @@ public class SocialNetwork implements SocialNetworkADT {
         if (words.length == 2) {
           removeUser(words[1]);
         } else {
+          System.out.println("2");
           removeFriends(words[1], words[2]);
         }
       }

@@ -140,11 +140,18 @@ public class Graph implements GraphADT {
    * @param person the node need to remove
    * @throws PersonNotFoundException if did not find selected user
    * @return true if successfully add user and false otherwise
+   * @throws NoEdgeExistsException 
    */
   @Override
-  public boolean removeNode(Person person) throws PersonNotFoundException {
+  public boolean removeNode(Person person) throws PersonNotFoundException, NoEdgeExistsException {
     if (person != null) {
       if (adjacencyList.containsKey(person)) { // check if graph contains the given person
+        List<Person> friendList = getNeighbors(person);
+        if (friendList != null && !friendList.isEmpty()) {
+          for (int i = 0; i < friendList.size(); i++) {
+            adjacencyList.get(friendList.get(i)).remove(person);
+          }
+        }
         adjacencyList.remove(person);
         return true;
       } else { // if the graph did not have given person
@@ -194,6 +201,7 @@ public class Graph implements GraphADT {
    */
   @Override
   public List<Person> getAllNodes() {
+    allVertices = new ArrayList<Person>();
     for (Map.Entry<Person, List<Person>> entry : adjacencyList.entrySet()) {
       allVertices.add(entry.getKey());
     }
