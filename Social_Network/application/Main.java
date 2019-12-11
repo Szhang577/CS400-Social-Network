@@ -57,7 +57,7 @@ import javafx.scene.layout.AnchorPane;
 
 /**
  * @author Siyuan
- * Main program coding to establish GUI 
+ *Main program coding to establish GUI 
  */
 public class Main extends Application {
 	// program size and title
@@ -124,12 +124,14 @@ public class Main extends Application {
 				+ "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
 	}
 
-	// Helper method to get the last instruction
+	// Helper method to get the lastest instruction
 	private String getCurrentInstruction() {
 		return this.statusMessage;
 
 	}
-
+	/* Helper method to set the lastest instruction into status parameter
+	* @parameter status varibale that stores instructions
+	*/
 	private void setCurrentInstruction(String status) {
 		this.statusMessage = status;
 	}
