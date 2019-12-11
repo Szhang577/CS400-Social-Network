@@ -23,7 +23,7 @@ import java.io.FileWriter;
 public class SocialNetwork implements SocialNetworkADT {
 
   public Graph graph = new Graph();
-  private String operation = "";
+  public String operation = "";
 
   public boolean centralSet = false; // boolean to determine whether central user been set
   public String centralUser = ""; // the central user
@@ -39,12 +39,12 @@ public class SocialNetwork implements SocialNetworkADT {
     if (!person1.equals(null) && !person2.equals(null)) {
       Person user1 = graph.getNode(person1);
       Person user2 = graph.getNode(person2);
-//      nodeAdded1 = graph.addNode(user1);
-//      nodeAdded2 = graph.addNode(user2);
+      // nodeAdded1 = graph.addNode(user1);
+      // nodeAdded2 = graph.addNode(user2);
       edgeAdded = graph.addEdge(user1, user2);
     }
     if (nodeAdded1 == true && nodeAdded2 == true && edgeAdded == true) {
-      operation.concat("a " + person1 + " " + person2 + "\n");
+      operation = operation.concat("a " + person1 + " " + person2 + "\n");
       return true;
     } else {
       return false;
@@ -62,7 +62,7 @@ public class SocialNetwork implements SocialNetworkADT {
       nodeRemoved = graph.removeEdge(user1, user2);
     }
     if (nodeRemoved) {
-      operation.concat("r " + person1 + " " + person2 + "\n");
+      operation = operation.concat("r " + person1 + " " + person2 + "\n");
       return true;
     } else {
       return false;
@@ -79,7 +79,7 @@ public class SocialNetwork implements SocialNetworkADT {
       userAdded = graph.addNode(user);
     }
     if (userAdded) {
-      operation.concat("a " + person + "\n");
+      operation = operation.concat("a " + person + "\n");
       return true;
     } else {
       return false;
@@ -95,7 +95,7 @@ public class SocialNetwork implements SocialNetworkADT {
       userRemoved = graph.removeNode(user);
     }
     if (userRemoved) {
-      operation.concat("r " + person + "\n");
+      operation = operation.concat("r " + person + "\n");
       return true;
     } else {
       return false;
@@ -105,14 +105,12 @@ public class SocialNetwork implements SocialNetworkADT {
   @Override
   public List<Person> getFriends(String person) {
     // TODO Auto-generated method stub
-    List<Person> friends = new ArrayList<Person>();
-    if (!person.equals(null)) {
+    if (person != null) {
       Person user = graph.getNode(person);
-      if (user.equals(null)) {
+      if (user == null) {
         return null;
       }
-      friends = graph.getNeighbors(user);
-      return friends;
+      return graph.getNeighbors(user);
     }
     return null;
   }
@@ -217,12 +215,12 @@ public class SocialNetwork implements SocialNetworkADT {
     }
     return count;
   }
-  
+
   private void DFSUtil(Person person, List<Person> visited) {
     visited.add(person);
-    
+
     List<Person> neighbors = graph.getNeighbors(person);
-    
+
     if (neighbors != null && neighbors.size() != 0) {
       for (int i = 0; i < neighbors.size(); i++) {
         if (!visited.contains(neighbors.get(i))) {
@@ -230,7 +228,6 @@ public class SocialNetwork implements SocialNetworkADT {
         }
       }
     }
-    
   }
 
 
