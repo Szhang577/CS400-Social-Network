@@ -736,7 +736,7 @@ public class Main extends Application {
     drawGraphPane.getChildren().addAll(line);
   }
 
-	//helper method for updating combobox when adding
+  //helper method for updating combobox when adding
   private void updateAddList() {
     userList = socialNetwork.graph.getAllNodes();
 
@@ -838,7 +838,8 @@ public class Main extends Application {
     layout.setPadding(new Insets(10));
     return layout;
   }
-
+	
+  //main application stage that dispalying all components		
   @Override
   public void start(Stage primaryStage) throws Exception {
     // TODO Auto-generated method stub
