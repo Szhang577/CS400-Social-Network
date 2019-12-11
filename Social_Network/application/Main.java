@@ -57,7 +57,7 @@ import javafx.scene.layout.AnchorPane;
 
 /**
  * @author Siyuan
- *Main program coding to establish GUI 
+ * Main program coding to establish GUI 
  */
 public class Main extends Application {
 	// program size and title
