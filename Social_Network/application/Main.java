@@ -122,639 +122,671 @@ import javafx.scene.layout.AnchorPane;
  *
  */
 public class Main extends Application {
-	//program size and title
-  private static final double WINDOW_WIDTH = 1170;
-  private static final double WINDOW_HEIGHT = 800;
-  private static final String APP_TITLE = "Weibo Social Network";
-  private static final PseudoClass SELECTED_P_C = PseudoClass.getPseudoClass("selected");
-  private final double radius = 30 ;
-  private final double spacing = 20 ;
-  private final ObjectProperty<Circle> selectedCircle = new SimpleObjectProperty<>(); 
-  private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
-  
-  //Box objects within the program
-  public BorderPane pane = new BorderPane();
-  public SocialNetwork socialNetwork =new SocialNetwork();
-  public VBox statusGraphBox;
-  public BorderPane drawGraphPane;
-  public VBox statusBox;
-  public VBox leftSide;
-  public HBox basicMenuBox;
-  public VBox advanceMenuBox;
-  public HBox infoBox;
-  private int numOfConnectedGraph;
-  private Random rand = new Random();
-  private AnchorPane anchorPane = new AnchorPane();
-  private ArrayList<Person> userList;
+	// program size and title
+	private static final double WINDOW_WIDTH = 1170;
+	private static final double WINDOW_HEIGHT = 800;
+	private static final String APP_TITLE = "Weibo Social Network";
+	private static final PseudoClass SELECTED_P_C = PseudoClass.getPseudoClass("selected");
+	private final double radius = 30;
+	private final double spacing = 20;
+	private final ObjectProperty<Circle> selectedCircle = new SimpleObjectProperty<>();
+	private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
 
-  /**
-   * @author Kaiwen Shen
-   *
-   */
-  //Status box: show user the last instruction
-  private void setUpstatusBox() {
+	// Box objects within the program
+	public BorderPane pane = new BorderPane();
+	public SocialNetwork socialNetwork = new SocialNetwork();
+	public VBox statusGraphBox;
+	public BorderPane drawGraphPane;
+	public VBox statusBox;
+	public VBox leftSide;
+	public HBox basicMenuBox;
+	public VBox advanceMenuBox;
+	public HBox infoBox;
+	private int numOfConnectedGraph;
+	private Random rand = new Random();
+	private AnchorPane anchorPane = new AnchorPane();
+	private List<Person> userList;
+
+	ComboBox<String> personList = new ComboBox<String>();
+	ComboBox<String> removeFriendList2 = new ComboBox<String>();
+	ComboBox<String> friendList1 = new ComboBox<String>();
+	ComboBox<String> friendList2 = new ComboBox<String>();
+	ComboBox<String> removeFriendList1 = new ComboBox<String>();
+	ComboBox<String> mutualFriend1 = new ComboBox<String>();
+	ComboBox<String> mutualFriend2 = new ComboBox<String>();
+	ComboBox<String> sequence1 = new ComboBox<String>();
+	ComboBox<String> sequence2 = new ComboBox<String>();
+	ComboBox<String> searchInp = new ComboBox<String>();
+
+	/**
+	 * @author Kaiwen Shen
+	 *
+	 */
+	// Status box: show user the last instruction
+	private void setUpstatusBox() {
 		statusBox = new VBox(10);
 		statusBox.setPrefHeight(150);
 		Label text = new Label("Status Message:\n ");
 		Label message = new Label("No Instruction Yet");
-		
-		//If instruction is found, set content to it
-		if(getCurrentInstruction()!= null) {
+
+		// If instruction is found, set content to it
+		if (getCurrentInstruction() != null) {
 			message.setText(getCurrentInstruction());
 		}
-		
+
 		statusBox.getChildren().addAll(text, message);
-		//Box border
-		statusBox.setStyle("-fx-border-color: blue;\n" + "-fx-border-widths: 2;\n" + 
-		"-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
-  }
-  
-  //Helper method to get the last instruction
-  private String getCurrentInstruction() {
+		// Box border
+		statusBox.setStyle("-fx-border-color: blue;\n" + "-fx-border-widths: 2;\n" + "-fx-padding: 10pt;\n"
+				+ "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
+	}
+
+	// Helper method to get the last instruction
+	private String getCurrentInstruction() {
 		return null;
-  }
-  
-  //BasicMenu: add,remove users and friendship, load file
-  private void setUpBasicMenuBox() {
-    basicMenuBox = new HBox(10);
-    
-    //create button objects
-    VBox buttonCollections = new VBox(35);
-    Button addUser = new Button("Add User");
-    Button removeUser = new Button("Remove User");
-    Button addFriends = new Button("Add Friendship");
-    Button removeFriends = new Button("Remove Friendship");
-    Button loadFile = new Button("Load File");
-    
-   
-    buttonCollections.getChildren().addAll(addUser, removeUser, addFriends, removeFriends,
-        loadFile);
-    
-    
-    //create text input objects
-    VBox inputCollections = new VBox(35);
-    TextField addPerson = new TextField();
-    addPerson.setMaxWidth(350);
-    addPerson.setPrefWidth(300);
-
-    ComboBox<String> personList = new ComboBox<String>();
-    personList.setMaxWidth(350);
-    personList.setPrefWidth(300);
-
-
-
-    HBox addFriendship = new HBox(10);
-    ComboBox<String> friendList1 = new ComboBox<String>();
-    friendList1.setMaxWidth(170);
-    friendList1.setPrefWidth(145);
-
-
-    ComboBox<String> friendList2 = new ComboBox<String>();
-    friendList2.setMaxWidth(170);
-    friendList2.setPrefWidth(145);
-
-
-    addFriendship.getChildren().addAll(friendList1, friendList2);
-
-    HBox removeFriendship = new HBox(10);
-    ComboBox<String> removeFriendList1 = new ComboBox<String>();
-    removeFriendList1.setMaxWidth(170);
-    removeFriendList1.setPrefWidth(145);
-
-    ComboBox<String> removeFriendList2 = new ComboBox<String>();
-    removeFriendList2.setMaxWidth(170);
-    removeFriendList2.setPrefWidth(145);
-
-    removeFriendship.getChildren().addAll(removeFriendList1, removeFriendList2);
-
-    TextField loadFileName = new TextField();
-    loadFileName.setMaxWidth(350);
-    loadFileName.setPrefWidth(300);
-
-    if (userList != null) {
-      for (int i = 0; i < userList.size(); i++) {
-        String userName = userList.get(i).getName();
-        personList.getItems().add(userName);
-        friendList1.getItems().add(userName);
-        friendList2.getItems().add(userName);
-        removeFriendList1.getItems().add(userName);
-        removeFriendList2.getItems().add(userName);
-      }
-    }
-    
-    inputCollections.getChildren().addAll(addPerson, personList, addFriendship, removeFriendship,
-        loadFileName);
-    
-
-    //combine buttons and inputs
-    basicMenuBox.getChildren().addAll(buttonCollections, inputCollections);
-    
-    //set up buttons
-    addUser.setOnAction((event) -> {
-    	
-      String name = addPerson.getText();
-      try {
-		socialNetwork.addUser(name);
-	
-	} catch (DuplicatePersonException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
 	}
- 
-      setUpBasicMenuBox();
-      System.out.println(socialNetwork.graph.getNode(name));
-      ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
-      drawGraph(name, friends);
-      try {
-    	  pane.setLeft(statusGraphBox);
-	} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-      } );
 
-    
-    removeUser.setOnAction((event) -> {
-      String name = personList.getValue();
-      //delete node if input is valid
-      if (name != null && !name.isEmpty()) {
-        double[] coord = getCoordinatesFromName(name);
-        removeNode(drawGraphPane, coord[0], coord[1]);
-      } else {
-        System.out.println("name is null");
-      }
-    });
+	// BasicMenu: add,remove users and friendship, load file
+	private void setUpBasicMenuBox() {
+		basicMenuBox = new HBox(10);
 
-    
-    addFriends.setOnAction((event) -> {
-      String user1 = friendList1.getValue();
-      String user2 = friendList2.getValue();
-      //draw friendship if input is valid
-        try {
-          socialNetwork.addFriends(user1, user2);
-        } catch (PersonNotFoundException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (DuplicateEdgesException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (DuplicatePersonException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        setUpBasicMenuBox();
-        System.out.println(socialNetwork.graph.getNode(user1));
-        ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(user1);
-        drawGraph(user1, friends);
-        try {
-          pane.setLeft(statusGraphBox);
-        } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        }
-    });
+		// create button objects
+		VBox buttonCollections = new VBox(35);
+		Button addUser = new Button("Add User");
+		Button removeUser = new Button("Remove User");
+		Button addFriends = new Button("Add Friendship");
+		Button removeFriends = new Button("Remove Friendship");
+		Button loadFile = new Button("Load File");
 
-    removeFriends.setOnAction((event) -> {
-      String user1 = removeFriendList1.getValue();
-      String user2 = removeFriendList2.getValue();
-      //remove friendship if input is valid
-      if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
-        double[] coord1 = getCoordinatesFromName(user1);
-        double[] coord2 = getCoordinatesFromName(user2);
-        removeEdge(drawGraphPane, coord1[0], coord1[1], coord2[0], coord2[1]);
-      } else {
-        System.out.println("name is null");
-      }
-    });
+		buttonCollections.getChildren().addAll(addUser, removeUser, addFriends, removeFriends, loadFile);
 
-    loadFile.setOnAction((event) -> {
-      String fileName = loadFileName.getText();
-      //establish current network if file is valid
-      if (fileName != null && !fileName.isEmpty()) {
-        File file = new File(fileName);
-        try {
-			socialNetwork.loadFromFile(file);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DuplicatePersonException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PersonNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DuplicateEdgesException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoEdgeExistsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// create text input objects
+		VBox inputCollections = new VBox(35);
+		TextField addPerson = new TextField();
+		addPerson.setMaxWidth(350);
+		addPerson.setPrefWidth(300);
+
+		personList.setMaxWidth(350);
+		personList.setPrefWidth(300);
+
+		HBox addFriendship = new HBox(10);
+
+		friendList1.setMaxWidth(170);
+		friendList1.setPrefWidth(145);
+
+		friendList2.setMaxWidth(170);
+		friendList2.setPrefWidth(145);
+
+		addFriendship.getChildren().addAll(friendList1, friendList2);
+
+		HBox removeFriendship = new HBox(10);
+
+		removeFriendList1.setMaxWidth(170);
+		removeFriendList1.setPrefWidth(145);
+
+		removeFriendList2.setMaxWidth(170);
+		removeFriendList2.setPrefWidth(145);
+
+		removeFriendship.getChildren().addAll(removeFriendList1, removeFriendList2);
+
+		TextField loadFileName = new TextField();
+		loadFileName.setMaxWidth(350);
+		loadFileName.setPrefWidth(300);
+
+		if (userList != null) {
+			for (int i = 0; i < userList.size(); i++) {
+				String userName = userList.get(i).getName();
+				personList.getItems().add(userName);
+				friendList1.getItems().add(userName);
+				friendList2.getItems().add(userName);
+				removeFriendList1.getItems().add(userName);
+				removeFriendList2.getItems().add(userName);
+			}
 		}
-      } else {
-        System.out.println("name is null");
-      }
-    });
-  }
 
-  /**
-   * @author Ruokai
-   *
-   */
-  /*AdvanceMenu: clear network, undo last instruction, exit program with pop-ups
-  	export current network, find mutual friend, find friend sequences, search for a user*/
-  				
-  private void setUpAdvanceMenuBox() {
-    advanceMenuBox = new VBox(35);
-    //set up clear undo and exit
-    HBox buttonCollection1 = new HBox(30);
-    Button clear = new Button("Clear");
-    Button undo = new Button("Undo");
-    Button exit = new Button("Exit");
-    
-    //clear alert pop-up
-    Alert a = new Alert(AlertType.NONE); 
-    EventHandler<ActionEvent> eventClear = new EventHandler<ActionEvent>() { 
-    	public void handle(ActionEvent e) 
-    	{ 
-    		// set alert type 
-    		a.setAlertType(AlertType.CONFIRMATION); 
+		inputCollections.getChildren().addAll(addPerson, personList, addFriendship, removeFriendship, loadFileName);
 
-    		// set content text 
-    		a.setContentText("Do you want to clear the network?"); 
+		// combine buttons and inputs
+		basicMenuBox.getChildren().addAll(buttonCollections, inputCollections);
 
-    		// show the dialog 
-    		a.show(); 
-    	} 
-    }; 
-    
-    //undo alert pop-up
-    EventHandler<ActionEvent> eventUndo = new EventHandler<ActionEvent>() { 
-    	public void handle(ActionEvent e) 
-    	{ 
-    		// set alert type 
-    		a.setAlertType(AlertType.CONFIRMATION); 
+		// set up buttons
+		addUser.setOnAction((event) -> {
 
-    		// set content text 
-    		a.setContentText("Do you want to undo last instruction?"); 
+			String name = addPerson.getText();
+			try {
+				socialNetwork.addUser(name);
 
-    		// show the dialog 
-    		a.show(); 
-    	} 
-    }; 
-    
-    //exit dialog pop-up
-    EventHandler<ActionEvent> eventExit = new EventHandler<ActionEvent>() { 
-    	public void handle(ActionEvent e) 
-    	{ 
-    		TextInputDialog dialog = new TextInputDialog("myNetwork");
-    		dialog.setContentText("If you wish to save your network\nPlease enter file name:");
-    		dialog.setTitle("Exit Dialog");
-    		
-    		//custom buttons
-    		ButtonType save = new ButtonType("Save",ButtonData.OK_DONE);
-    		ButtonType exit_without_save = new ButtonType("Exit without Save",ButtonData.OK_DONE);
-    		
-    		//add save, exit without save and cancel
-    		dialog.getDialogPane().getButtonTypes().setAll(save, exit_without_save);
-    		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
-    		Optional<String> result = dialog.showAndWait();
-    		
-    		//if input is valid ... else...
-    		dialog.setResultConverter(dialogButton -> {
-    		    if (result.get() != null) {
-        		    return null;//...user chose save
-    		    }
-    		    else {
-        		    return null; // ... user chose exit without save
-        		}
+			} catch (DuplicatePersonException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-    		});
-    		
-    		
-    	} 
-    }; 
-    
-    clear.setOnAction(eventClear);
-    undo.setOnAction(eventUndo);
-    exit.setOnAction(eventExit);
-    
-    buttonCollection1.getChildren().addAll(clear, undo, exit);
-    
-    //set up buttons
-    VBox buttonCollection2 = new VBox(35);
-    Button export = new Button("Export");
-    Button mutual = new Button("Mutual Friend");
-    Button sequence_friends = new Button("Friends Sequences");
-    Button search = new Button("Search");
-    
-    buttonCollection2.getChildren().addAll(export, mutual, sequence_friends, search);
-    
-    //set up text inputs
-    VBox inputCollection = new VBox(35);
-    TextField exportInp = new TextField();
-    exportInp.setMaxWidth(350);
-    exportInp.setPrefWidth(300);
+			setUpBasicMenuBox();
+			System.out.println(socialNetwork.graph.getNode(name));
+			ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
+			drawGraph(name, friends);
+			try {
+				pane.setLeft(statusGraphBox);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 
-    HBox mutualFriend = new HBox(10);
-    ComboBox<String> mutualFriend1 = new ComboBox<String>();
+		removeUser.setOnAction((event) -> {
+			String name = personList.getValue();
+			// delete node if input is valid
+			if (name != null && !name.isEmpty()) {
+				double[] coord = getCoordinatesFromName(name);
+				removeNode(drawGraphPane, coord[0], coord[1]);
+			} else {
+				System.out.println("name is null");
+			}
+		});
+
+		addFriends.setOnAction((event) -> {
+			String user1 = friendList1.getValue();
+			String user2 = friendList2.getValue();
+			// draw friendship if input is valid
+			try {
+				socialNetwork.addFriends(user1, user2);
+			} catch (PersonNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DuplicateEdgesException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DuplicatePersonException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			setUpBasicMenuBox();
+			System.out.println(socialNetwork.graph.getNode(user1));
+			ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(user1);
+			drawGraph(user1, friends);
+			try {
+				pane.setLeft(statusGraphBox);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+
+		removeFriends.setOnAction((event) -> {
+			String user1 = removeFriendList1.getValue();
+			String user2 = removeFriendList2.getValue();
+			// remove friendship if input is valid
+			if (user1 != null && user2 != null && !user1.isEmpty() && !user2.isEmpty()) {
+				double[] coord1 = getCoordinatesFromName(user1);
+				double[] coord2 = getCoordinatesFromName(user2);
+				removeEdge(drawGraphPane, coord1[0], coord1[1], coord2[0], coord2[1]);
+			} else {
+				System.out.println("name is null");
+			}
+		});
+
+		loadFile.setOnAction((event) -> {
+			String fileName = loadFileName.getText();
+			// establish current network if file is valid
+			if (fileName != null && !fileName.isEmpty()) {
+				File file = new File(fileName);
+				try {
+					socialNetwork.loadFromFile(file);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DuplicatePersonException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (PersonNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DuplicateEdgesException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoEdgeExistsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("name is null");
+			}
+		});
+
+	}
+
+	/**
+	 * @author Ruokai
+	 *
+	 */
+	/*
+	 * AdvanceMenu: clear network, undo last instruction, exit program with pop-ups
+	 * export current network, find mutual friend, find friend sequences, search for
+	 * a user
+	 */
+
+	private void setUpAdvanceMenuBox() {
+		advanceMenuBox = new VBox(35);
+		// set up clear undo and exit
+		HBox buttonCollection1 = new HBox(30);
+		Button clear = new Button("Clear");
+		Button undo = new Button("Undo");
+		Button exit = new Button("Exit");
+
+		// clear alert pop-up
+		Alert a = new Alert(AlertType.NONE);
+		EventHandler<ActionEvent> eventClear = new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				// set alert type
+				a.setAlertType(AlertType.CONFIRMATION);
+
+				// set content text
+				a.setContentText("Do you want to clear the network?");
+
+				// show the dialog
+				a.show();
+			}
+		};
+
+		// undo alert pop-up
+		EventHandler<ActionEvent> eventUndo = new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				// set alert type
+				a.setAlertType(AlertType.CONFIRMATION);
+
+				// set content text
+				a.setContentText("Do you want to undo last instruction?");
+
+				// show the dialog
+				a.show();
+			}
+		};
+
+		// exit dialog pop-up
+		EventHandler<ActionEvent> eventExit = new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				TextInputDialog dialog = new TextInputDialog("myNetwork");
+				dialog.setContentText("If you wish to save your network\nPlease enter file name:");
+				dialog.setTitle("Exit Dialog");
+
+				// custom buttons
+				ButtonType save = new ButtonType("Save", ButtonData.OK_DONE);
+				ButtonType exit_without_save = new ButtonType("Exit without Save", ButtonData.OK_DONE);
+
+				// add save, exit without save and cancel
+				dialog.getDialogPane().getButtonTypes().setAll(save, exit_without_save);
+				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+				Optional<String> result = dialog.showAndWait();
+
+				// if input is valid ... else...
+				dialog.setResultConverter(dialogButton -> {
+					if (result.get() != null) {
+						return null;// ...user chose save
+					} else {
+						return null; // ... user chose exit without save
+					}
+
+				});
+
+			}
+		};
+
+		clear.setOnAction(eventClear);
+		undo.setOnAction(eventUndo);
+		exit.setOnAction(eventExit);
+
+		buttonCollection1.getChildren().addAll(clear, undo, exit);
+
+		// set up buttons
+		VBox buttonCollection2 = new VBox(35);
+		Button export = new Button("Export");
+		Button mutual = new Button("Mutual Friend");
+		Button sequence_friends = new Button("Friends Sequences");
+		Button search = new Button("Search");
+
+		buttonCollection2.getChildren().addAll(export, mutual, sequence_friends, search);
+
+		// set up text inputs
+		VBox inputCollection = new VBox(35);
+		TextField exportInp = new TextField();
+		exportInp.setMaxWidth(350);
+		exportInp.setPrefWidth(300);
+
+		HBox mutualFriend = new HBox(10);
+
 //    TextField mutualFriend1 = new TextField();
-    mutualFriend1.setMaxWidth(170);
-    mutualFriend1.setPrefWidth(145);
-    ComboBox<String> mutualFriend2 = new ComboBox<String>();
+		mutualFriend1.setMaxWidth(170);
+		mutualFriend1.setPrefWidth(145);
+
 //    TextField mutualFriend2 = new TextField();
-    mutualFriend2.setMaxWidth(170);
-    mutualFriend2.setPrefWidth(145);
-    mutualFriend.getChildren().addAll(mutualFriend1, mutualFriend2);
+		mutualFriend2.setMaxWidth(170);
+		mutualFriend2.setPrefWidth(145);
+		mutualFriend.getChildren().addAll(mutualFriend1, mutualFriend2);
 
+		HBox sequence = new HBox(10);
 
-    HBox sequence = new HBox(10);
-    ComboBox<String> sequence1 = new ComboBox<String>();
 //    TextField sequence1 = new TextField();
-    sequence1.setMaxWidth(170);
-    sequence1.setPrefWidth(145);
-    ComboBox<String> sequence2 = new ComboBox<String>();
+		sequence1.setMaxWidth(170);
+		sequence1.setPrefWidth(145);
+
 //    TextField sequence2 = new TextField();
-    sequence2.setMaxWidth(170);
-    sequence2.setPrefWidth(145);
-    sequence.getChildren().addAll(sequence1, sequence2);
+		sequence2.setMaxWidth(170);
+		sequence2.setPrefWidth(145);
+		sequence.getChildren().addAll(sequence1, sequence2);
 
-    ComboBox<String> searchInp = new ComboBox<String>();
 //    TextField searchInp = new TextField();
-    searchInp.setMaxWidth(350);
-    searchInp.setPrefWidth(300);
-    
-    if (userList != null) {
-      for (int i = 0; i < userList.size(); i++) {
-        String userName = userList.get(i).getName();
-        mutualFriend1.getItems().add(userName);
-        mutualFriend2.getItems().add(userName);
-        sequence1.getItems().add(userName);
-        sequence2.getItems().add(userName);
-        searchInp.getItems().add(userName);
-      }
-    }
-    
-    inputCollection.getChildren().addAll(exportInp, mutualFriend, sequence, searchInp);
+		searchInp.setMaxWidth(350);
+		searchInp.setPrefWidth(300);
 
-    HBox buttonAndInput = new HBox(10);
-    buttonAndInput.getChildren().addAll(buttonCollection2, inputCollection);
+		if (userList != null) {
+			for (int i = 0; i < userList.size(); i++) {
+				String userName = userList.get(i).getName();
+				mutualFriend1.getItems().add(userName);
+				mutualFriend2.getItems().add(userName);
+				sequence1.getItems().add(userName);
+				sequence2.getItems().add(userName);
+				searchInp.getItems().add(userName);
+			}
+		}
 
-    advanceMenuBox.getChildren().addAll(buttonCollection1, buttonAndInput);
-    
-    // actions
-    
-    search.setOnAction((click) -> {
-      String user = searchInp.getValue();
-      if(user != null) {
-        setSelectedUser(user);
-      }else {
-        System.out.println("name is null");
-      }
-    });
-  }
+		inputCollection.getChildren().addAll(exportInp, mutualFriend, sequence, searchInp);
 
-  //helper method for reading the num of grps
-  private Label updateNumOfConnectedGroups(int numOfGroups) {
-    String numUpdate = "Number of Connected Groups is " + numOfGroups;
-    Label numLabel = new Label(numUpdate);
-    return numLabel;
+		HBox buttonAndInput = new HBox(10);
+		buttonAndInput.getChildren().addAll(buttonCollection2, inputCollection);
 
-  }
+		advanceMenuBox.getChildren().addAll(buttonCollection1, buttonAndInput);
 
-  // method for drawing the network
-  private void drawGraph(String name, ArrayList<Person> adjacencyList) {
-	BorderPane drawGraphPane = new BorderPane();
-	drawGraphPane.prefWidth(580);
-	drawGraphPane.prefHeight(500);
-    statusGraphBox = new VBox(20);
-    infoBox = new HBox(20);
-    infoBox.prefWidth(580);
-    Label updateNum = updateNumOfConnectedGroups(this.numOfConnectedGraph);
+		// actions
+
+		search.setOnAction((click) -> {
+			String user = searchInp.getValue();
+			if (user != null) {
+				setSelectedUser(user);
+			} else {
+				System.out.println("name is null");
+			}
+		});
+	}
+
+	// helper method for reading the num of grps
+	private Label updateNumOfConnectedGroups(int numOfGroups) {
+		String numUpdate = "Number of Connected Groups is " + numOfGroups;
+		Label numLabel = new Label(numUpdate);
+		return numLabel;
+
+	}
+
+	// method for drawing the network
+	private void drawGraph(String name, ArrayList<Person> adjacencyList) {
+		BorderPane drawGraphPane = new BorderPane();
+		drawGraphPane.prefWidth(580);
+		drawGraphPane.prefHeight(500);
+		statusGraphBox = new VBox(20);
+		infoBox = new HBox(20);
+		infoBox.prefWidth(580);
+		Label updateNum = updateNumOfConnectedGroups(this.numOfConnectedGraph);
 //    gc.setFill(Color.BLUE);
 //    gc.setFont(new Font(20));
 //    gc.setStroke(Color.BLUE);
 //    gc.setLineWidth(2);
 //    gc.strokeLine(60, 120, 270, 70);
 
-    Text appTitle = new Text("Weibo Social Network");
-    appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" +
-    "-fx-font-size: 20px;\n");
-    appTitle.setFill(Color.rgb(207, 18, 22));
-    
-    System.out.println("name");
-    if(name != null) {
-    drawNode(drawGraphPane, name, 284,250 );
-    }
-    
+		Text appTitle = new Text("Weibo Social Network");
+		appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" + "-fx-font-size: 20px;\n");
+		appTitle.setFill(Color.rgb(207, 18, 22));
+
+		System.out.println("name");
+		if (name != null) {
+			drawNode(drawGraphPane, name, 284, 250);
+		}
+
 //    if(adjacentcyList != null) {
 //    	for(int i = 0; i < adjacentcyList.length; i++) {
 //    		drawNode(drawGraphBox, adjacentcyList[i].toString(), drawGraphBox.getWidth()*1/2, drawGraphBox.getHeight()*1/2);
 //    	}
 //    }
-    int[][]coors = new int[90][2];
-    for(int i = 0; i < 10; i++) {
-    	for(int j =0; j < 9; j++ ) {
-    		coors[j*10+i][0]=i;
-    		coors[j*10+i][1]=j;
-    	}
-    }
-    coors[44] = null;
-    if(adjacencyList != null && adjacencyList.size() != 0) {
-      for(int i = 0; i < adjacencyList.size(); i++) {
-        Random rand = new Random();
-    	int randNum = rand.nextInt(90);
-    	if(coors[randNum] != null) {
-		drawNode(drawGraphPane, adjacencyList.get(i).getName(), 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
-		drawEdge(drawGraphPane, 284,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
-		coors[randNum] = null;
-    	}
-      }
-    }
-    infoBox.getChildren().addAll(appTitle);
-    infoBox.setAlignment(Pos.CENTER);
-    
-    statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphPane);
+		int[][] coors = new int[90][2];
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 9; j++) {
+				coors[j * 10 + i][0] = i;
+				coors[j * 10 + i][1] = j;
+			}
+		}
+		coors[44] = null;
+		if (adjacencyList != null && adjacencyList.size() != 0) {
+			for (int i = 0; i < adjacencyList.size(); i++) {
+				Random rand = new Random();
+				int randNum = rand.nextInt(90);
+				if (coors[randNum] != null) {
+					drawNode(drawGraphPane, adjacencyList.get(i).getName(), 66 * coors[randNum][0] + 20,
+							10 + 60 * coors[randNum][1]);
+					drawEdge(drawGraphPane, 284, 250, 66 * coors[randNum][0] + 20, 10 + 60 * coors[randNum][1]);
+					coors[randNum] = null;
+				}
+			}
+		}
+		infoBox.getChildren().addAll(appTitle);
+		infoBox.setAlignment(Pos.CENTER);
+
+		statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphPane);
 //    statusGraphBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
 //        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
-    
+
 //    anchorPane.getChildren().addAll(statusGraphBox);
 //    Button test1 = new Button("Mike");
 //    test1.setStyle("-fx-background-color: transparent;");
 //    AnchorPane.setTopAnchor(test1, 210.0);
 //    AnchorPane.setLeftAnchor(test1, 60.0);
 //    anchorPane.getChildren().addAll(test1);
-    
 
-  }
-  
-  private void drawMutualFriend(String name1,String name2) {
-    List<Person> mutualFriends = new ArrayList<Person>();
-    mutualFriends = socialNetwork.getMutualFriends(name1, name2);
-    if(name1 != null) {
-      drawNode(drawGraphPane, name1, 30, 250 );
-    }
-    if(name2 != null) {
-      drawNode(drawGraphPane, name2, 550, 250 );
-    }
-    int[][]coors = new int[90][2];
-    for(int i = 0; i < 10; i++) {
-        for(int j =0; j < 9; j++ ) {
-            coors[j*10+i][0]=i;
-            coors[j*10+i][1]=j;
-        }
-    }
-    coors[40] = null;
-    coors[49] = null;
-    if(mutualFriends != null && mutualFriends.size() != 0) {
-      for(int i = 0; i < mutualFriends.size(); i++) {
-        Random rand = new Random();
-        int randNum = rand.nextInt(90);
-        if(coors[randNum] != null) {
-        drawNode(drawGraphPane, mutualFriends.get(i).getName(), 66*coors[randNum][0]+20,10+60*coors[randNum][1] );
-        drawEdge(drawGraphPane, 30,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
-        drawEdge(drawGraphPane, 550,250, 66*coors[randNum][0]+20, 10+60*coors[randNum][1]);
-        coors[randNum] = null;
-        }
-      }
-    }
-    
-}
+	}
 
-  //helper method for drawing circles
-  private void drawNode(BorderPane pane, String name, double x, double y) {
-	  
-	  StackPane stack = new StackPane();
-	  stack = createCircle(name,x, y);
-	  stack.relocate(x,y);
-	  pane.getChildren().addAll(stack);
-	  selectedCircle.addListener((obs, oldSelection, newSelection) -> {
-        if (oldSelection != null) {
-            oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
-        }
-        if (newSelection != null) {
-            newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
-            System.out.println(name);
-            setSelectedUser(name);        }
-  });
-	    
-	  Label label = new Label();
-	  label.textProperty().bind(Bindings.createStringBinding(() -> {
-		  Point2D loc = selectedLocation.get();
-	      if (loc == null) {
-	          return "" ;
-	      }
-	      return String.format("Location: [%.0f, %.0f]", loc.getX(), loc.getY());
-	  }, selectedLocation));
-	    
-  }
-  
-  private void drawEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
-	  Line line = new Line(); 
-	  line.setStartX(x1); 
-	  line.setStartY(y1); 
-	  line.setEndX(x2); 
-	  line.setEndY(y2);
-	  drawGraphPane.getChildren().addAll(line);
-  }
-  
-  
+	private void drawMutualFriend(String name1, String name2) {
+		List<Person> mutualFriends = new ArrayList<Person>();
+		mutualFriends = socialNetwork.getMutualFriends(name1, name2);
+		if (name1 != null) {
+			drawNode(drawGraphPane, name1, 30, 250);
+		}
+		if (name2 != null) {
+			drawNode(drawGraphPane, name2, 550, 250);
+		}
+		int[][] coors = new int[90][2];
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 9; j++) {
+				coors[j * 10 + i][0] = i;
+				coors[j * 10 + i][1] = j;
+			}
+		}
+		coors[40] = null;
+		coors[49] = null;
+		if (mutualFriends != null && mutualFriends.size() != 0) {
+			for (int i = 0; i < mutualFriends.size(); i++) {
+				Random rand = new Random();
+				int randNum = rand.nextInt(90);
+				if (coors[randNum] != null) {
+					drawNode(drawGraphPane, mutualFriends.get(i).getName(), 66 * coors[randNum][0] + 20,
+							10 + 60 * coors[randNum][1]);
+					drawEdge(drawGraphPane, 30, 250, 66 * coors[randNum][0] + 20, 10 + 60 * coors[randNum][1]);
+					drawEdge(drawGraphPane, 550, 250, 66 * coors[randNum][0] + 20, 10 + 60 * coors[randNum][1]);
+					coors[randNum] = null;
+				}
+			}
+		}
 
-  private void removeNode(BorderPane drawGraphPane, double x, double y) {
+	}
 
-  }
+	// helper method for drawing circles
+	private void drawNode(BorderPane pane, String name, double x, double y) {
 
-  
+		StackPane stack = new StackPane();
+		stack = createCircle(name, x, y);
+		stack.setLayoutX(x);
+		stack.setLayoutY(y);
+//	  stack.relocate(x,y);
 
-  private void removeEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
+		pane.getChildren().addAll(stack);
+//		selectedCircle.addListener((obs, oldSelection, newSelection) -> {
+//			if (oldSelection != null) {
+//				oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
+//			}
+//			if (newSelection != null) {
+//				newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
+//				System.out.println(name);
+//				setSelectedUser(name);
+//			}
+//		});
 
-  }
+//		Label label = new Label();
+//		label.textProperty().bind(Bindings.createStringBinding(() -> {
+//			Point2D loc = selectedLocation.get();
+//			if (loc == null) {
+//				return "";
+//			}
+//			return String.format("Location: [%.0f, %.0f]", loc.getX(), loc.getY());
+//		}, selectedLocation));
 
-  private String getNameFromCoordinates(double x1, double x2) {
-    return null;
+	}
 
-  }
+	private void drawEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
+		Line line = new Line();
+		line.setStartX(x1);
+		line.setStartY(y1);
+		line.setEndX(x2);
+		line.setEndY(y2);
+		drawGraphPane.getChildren().addAll(line);
+	}
 
-  private double[] getCoordinatesFromName(String name) {
-    return null;
-  }
+	private void removeNode(BorderPane drawGraphPane, double x, double y) {
 
-  private void setSelectedUser(String name) {
-    ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
-    drawGraph(name, friends);
-    try {
-        pane.setLeft(statusGraphBox);
-  } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-  }
-  }
-  
-  private StackPane createCircle(String name,double x, double y) {
-      Circle circle = new Circle();
-      circle.getStyleClass().add("intersection");
-      circle.setRadius(30);
-      
+	}
 
-      circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-          selectedCircle.set(circle);
-          selectedLocation.set(new Point2D(x, y));
-      });
-      
-      Text text = new Text(name);
-      text.setBoundsType(TextBoundsType.VISUAL); 
-      StackPane stack = new StackPane();
-      stack.getChildren().addAll(circle, text);
-      stack.setPrefSize(40,40);
-      stack.relocate(x,y);
-      return stack ;
-  }
-  @Override
-  public void start(Stage primaryStage) throws Exception {
-    // TODO Auto-generated method stub
-    pane.setPadding(new Insets(10,10,10,10));
-    VBox rightBox = new VBox(35);
-    drawGraph(null,null);
-    socialNetwork.addUser("p1");
-    socialNetwork.addUser("p2");
-    socialNetwork.addUser("p3");
-    
-    socialNetwork.addFriends("p1","p2");
-    socialNetwork.addFriends("p1","p3");
-    
-    
-    
-    drawGraph("p1",(ArrayList<Person>) socialNetwork.getFriends("p1"));
-    setUpBasicMenuBox();
-    setUpAdvanceMenuBox();
-    rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
-    rightBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + 
-        "-fx-padding: 10pt;\n" + "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
+	private void removeEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
 
-    pane.setRight(rightBox);
-    setUpstatusBox();
-    
-    
-    pane.setLeft(statusGraphBox);
+	}
+
+	private void updateList() {
+		userList = socialNetwork.graph.getAllNodes();
+
+		if (userList != null) {
+			for (int i = 0; i < userList.size(); i++) {
+				String userName = userList.get(i).getName();
+				if (!personList.getItems().contains(userName)) {
+					personList.getItems().add(userName);
+					friendList1.getItems().add(userName);
+					friendList2.getItems().add(userName);
+					removeFriendList1.getItems().add(userName);
+					removeFriendList2.getItems().add(userName);
+					mutualFriend1.getItems().add(userName);
+					mutualFriend2.getItems().add(userName);
+					sequence1.getItems().add(userName);
+					sequence2.getItems().add(userName);
+					searchInp.getItems().add(userName);
+
+				}
+			}
+		}
+
+	}
+
+	private String getNameFromCoordinates(double x1, double x2) {
+		return null;
+
+	}
+
+	private double[] getCoordinatesFromName(String name) {
+		return null;
+	}
+
+	private void setSelectedUser(String name) {
+		ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
+		drawGraph(name, friends);
+		try {
+			pane.setLeft(statusGraphBox);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private StackPane createCircle(String name, double x, double y) {
+//      Circle circle = new Circle();
+//      circle.getStyleClass().add("intersection");
+//      circle.setRadius(30);
+//      
+//
+//      circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+//          selectedCircle.set(circle);
+//          selectedLocation.set(new Point2D(x, y));
+//      });
+//      
+//      Text text = new Text(name);
+//      text.setBoundsType(TextBoundsType.VISUAL); 
+//      StackPane stack = new StackPane();
+//      stack.getChildren().addAll(circle, text);
+//      stack.setPrefSize(40,40);
+//      stack.relocate(x,y);
+//      return stack ;
+		Button roundButton = new Button(name);
+
+		roundButton.setStyle("-fx-background-radius: 20px; " + "-fx-min-width: 40px; " + "-fx-min-height: 40px; "
+				+ "-fx-max-width: 40px; " + "-fx-max-height: 40px;");
+//		roundButton.setLayoutX(x);
+//		roundButton.setLayoutY(y);
+		roundButton.setOnAction((event) -> {
+			if (name != null) {
+				setSelectedUser(name);
+			}
+		});
+		StackPane layout = new StackPane(roundButton);
+		layout.setPadding(new Insets(10));
+		return layout;
+	}
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		// TODO Auto-generated method stub
+		pane.setPadding(new Insets(10, 10, 10, 10));
+		VBox rightBox = new VBox(35);
+		drawGraph(null, null);
+		socialNetwork.addUser("p1");
+		socialNetwork.addUser("p2");
+		socialNetwork.addUser("p3");
+		socialNetwork.addUser("p4");
+
+		socialNetwork.addFriends("p1", "p2");
+		socialNetwork.addFriends("p1", "p3");
+		socialNetwork.addFriends("p1", "p4");
+
+		drawGraph("p1", (ArrayList<Person>) socialNetwork.getFriends("p1"));
+		setUpBasicMenuBox();
+		setUpAdvanceMenuBox();
+		rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
+		rightBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + "-fx-padding: 10pt;\n"
+				+ "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
+
+		pane.setRight(rightBox);
+		setUpstatusBox();
+
+		pane.setLeft(statusGraphBox);
 //    leftSide = new VBox(20);
 //	  leftSide.getChildren().addAll(statusGraphBox, statusBox );
 //	  pane.setLeft(leftSide);
 
-    pane.setBottom(statusBox);
-    
-    
-    Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
-    scene.getStylesheets().add("grid.css");
-    primaryStage.setTitle(APP_TITLE);
-    primaryStage.setScene(scene);
-    primaryStage.show();
+		pane.setBottom(statusBox);
 
-  }
+		Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+		scene.getStylesheets().add("grid.css");
+		primaryStage.setTitle(APP_TITLE);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		updateList();
 
-  /**
-   * @param args
-   */
-  public static void main(String[] args) {
-    launch(args);
-  }
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		launch(args);
+	}
 
 }
