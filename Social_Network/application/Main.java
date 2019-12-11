@@ -57,7 +57,7 @@ import javafx.scene.layout.AnchorPane;
 
 /**
  * @author Siyuan
- *
+ *Main program coding to establish GUI 
  */
 public class Main extends Application {
 	// program size and title
@@ -80,15 +80,17 @@ public class Main extends Application {
 	public HBox basicMenuBox;
 	public VBox advanceMenuBox;
 	public HBox infoBox;
+	 //Status Info
 	private int numOfConnectedGraph;
 	private Random rand = new Random();
 	private List<Person> userList;
 	private String statusMessage;
+	//special Users
 	private String centralUser;
 	private String headUser;
 	private String tailUser;
 	private HBox updateBox;
-
+	//Dropbox content
 	ComboBox<String> personList = new ComboBox<String>();
 	ComboBox<String> removeFriendList2 = new ComboBox<String>();
 	ComboBox<String> friendList1 = new ComboBox<String>();
@@ -104,7 +106,7 @@ public class Main extends Application {
 	 * @author Kaiwen Shen
 	 *
 	 */
-	// Status box: show user the last instruction
+	// Status box: show user the last instruction and execuation info
 	private void setUpstatusBox() {
 		statusBox = new VBox(10);
 		statusBox.setPrefHeight(150);
@@ -179,17 +181,6 @@ public class Main extends Application {
 		loadFileName.setMaxWidth(350);
 		loadFileName.setPrefWidth(300);
 
-		// if (userList != null) {
-		// for (int i = 0; i < userList.size(); i++) {
-		// String userName = userList.get(i).getName();
-		// personList.getItems().add(userName);
-		// friendList1.getItems().add(userName);
-		// friendList2.getItems().add(userName);
-		// removeFriendList1.getItems().add(userName);
-		// removeFriendList2.getItems().add(userName);
-		// }
-		// }
-
 		inputCollections.getChildren().addAll(addPerson, personList, addFriendship, removeFriendship, loadFileName);
 
 		// combine buttons and inputs
@@ -199,6 +190,7 @@ public class Main extends Application {
 		addUser.setOnAction((event) -> {
 
 			String name = addPerson.getText();
+			//add user and update network
 			try {
 				socialNetwork.addUser(name);
 				updateAddList();
@@ -221,12 +213,13 @@ public class Main extends Application {
 				pane.setBottom(statusBox);
 			}
 		});
-
+		
+		// delete node and update network
 		removeUser.setOnAction((event) -> {
 			String name = personList.getValue();
 			System.out.println(name);
 
-			// delete node if input is valid
+			// repick central user
 			if (name != null && !name.isEmpty()) {
 				if (name.equals(centralUser)) {
 					if (!name.equals(socialNetwork.graph.getAllNodes().get(0).getName())) {
@@ -237,7 +230,7 @@ public class Main extends Application {
 						centralUser = null;
 					}
 				}
-
+				// delete node and update network
 				try {
 					socialNetwork.removeUser(name);
 					updateRemoveList();
@@ -255,7 +248,8 @@ public class Main extends Application {
 				}
 			}
 		});
-
+		
+		//add friendship and update network
 		addFriends.setOnAction((event) -> {
 			String user1 = friendList1.getValue();
 			String user2 = friendList2.getValue();
@@ -287,7 +281,8 @@ public class Main extends Application {
 				pane.setBottom(statusBox);
 			}
 		});
-
+		
+		//remove friendship and update network
 		removeFriends.setOnAction((event) -> {
 			String user1 = removeFriendList1.getValue();
 			String user2 = removeFriendList2.getValue();
@@ -309,7 +304,8 @@ public class Main extends Application {
 				}
 			}
 		});
-
+		
+		//load from file and establish network
 		loadFile.setOnAction((event) -> {
 			String fileName = loadFileName.getText();
 			// establish current network if file is valid
@@ -392,9 +388,7 @@ public class Main extends Application {
 				// set content text
 				a.setContentText("Do you want to clear the network?");
 
-				// show the dialog
-				// a.show();
-
+				//await for userinput and decide whether clear all
 				Optional<ButtonType> option = a.showAndWait();
 
 				if (option.get() == null) {
@@ -411,6 +405,8 @@ public class Main extends Application {
 					pane.setRight(rightBox);
 					drawGraph(null, null);
 					String succMessage = "Clear successfully!";
+					
+					// clear all and update all lists and boxes
 					try {
 						pane.setLeft(statusGraphBox);
 						setCurrentInstruction(succMessage);
@@ -508,27 +504,26 @@ public class Main extends Application {
 
 		HBox mutualFriend = new HBox(10);
 
-		// TextField mutualFriend1 = new TextField();
+		
 		mutualFriend1.setMaxWidth(170);
 		mutualFriend1.setPrefWidth(145);
 
-		// TextField mutualFriend2 = new TextField();
 		mutualFriend2.setMaxWidth(170);
 		mutualFriend2.setPrefWidth(145);
 		mutualFriend.getChildren().addAll(mutualFriend1, mutualFriend2);
 
 		HBox sequence = new HBox(10);
 
-		// TextField sequence1 = new TextField();
+		
 		sequence1.setMaxWidth(170);
 		sequence1.setPrefWidth(145);
 
-		// TextField sequence2 = new TextField();
+		
 		sequence2.setMaxWidth(170);
 		sequence2.setPrefWidth(145);
 		sequence.getChildren().addAll(sequence1, sequence2);
 
-		// TextField searchInp = new TextField();
+		
 		searchInp.setMaxWidth(350);
 		searchInp.setPrefWidth(300);
 
@@ -540,14 +535,16 @@ public class Main extends Application {
 		advanceMenuBox.getChildren().addAll(buttonCollection1, buttonAndInput);
 
 		// actions
-
+		
+		//search for user and set to central
 		search.setOnAction((click) -> {
 			String user = searchInp.getValue();
 			if (user != null) {
 				setSelectedUser(user);
 			}
 		});
-
+		
+		//find mutual friends and display on network
 		mutual.setOnAction((event) -> {
 			String user1 = mutualFriend1.getValue();
 			String user2 = mutualFriend2.getValue();
@@ -564,7 +561,8 @@ public class Main extends Application {
 				pane.setBottom(statusBox);
 			}
 		});
-
+		
+		//find shortest path between two users and display at status box
 		sequence_friends.setOnAction((click) -> {
 			String user1 = sequence1.getValue();
 			String user2 = sequence2.getValue();
@@ -595,10 +593,11 @@ public class Main extends Application {
 				System.out.println("name is null");
 			}
 		});
-
+		
+		//export all instructions into a file
 		export.setOnAction((event) -> {
 			String fileName = exportInp.getText();
-			// establish current network if file is valid
+			// establish network if file is valid
 			if (fileName != null && !fileName.isEmpty()) {
 				File file = new File(fileName);
 				String succMessage = "Saved successfully!";
@@ -639,6 +638,7 @@ public class Main extends Application {
 
 	// method for drawing the network
 	private void drawGraph(String name, ArrayList<Person> adjacencyList) {
+		//outlayer
 		drawGraphPane = new BorderPane();
 		drawGraphPane.prefWidth(580);
 		drawGraphPane.prefHeight(500);
@@ -656,11 +656,14 @@ public class Main extends Application {
 		Text appTitle = new Text("Weibo Social Network");
 		appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" + "-fx-font-size: 20px;\n");
 		appTitle.setFill(Color.rgb(207, 18, 22));
-
+		
+		//draw central user
 		System.out.println(name);
 		if (name != null) {
 			drawNode(drawGraphPane, name, 284, 250);
 		}
+		
+		//draw all friends with random coors from bank
 		int[][] coors = new int[90][2];
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -687,8 +690,10 @@ public class Main extends Application {
 		statusGraphBox.getChildren().addAll(updateBox, infoBox, drawGraphPane);
 
 	}
-
+	
+	//help method for drawing mutual friends on network
 	private void drawMutualFriend(String name1, String name2) {
+		 //layer
 		drawGraphPane = new BorderPane();
 		List<Person> mutualFriends = new ArrayList<Person>();
 		try {
@@ -712,7 +717,8 @@ public class Main extends Application {
 		Text appTitle = new Text("Weibo Social Network");
 		appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" + "-fx-font-size: 20px;\n");
 		appTitle.setFill(Color.rgb(207, 18, 22));
-
+		
+		//fixing the head and tail before drawing
 		headUser = name1;
 		tailUser = name2;
 		String temp = centralUser;
@@ -725,6 +731,8 @@ public class Main extends Application {
 		if (name2 != null) {
 			drawNode(drawGraphPane, name2, 550, 250);
 		}
+		
+		//drawing all mutual friends
 		int[][] coors = new int[90][2];
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -767,7 +775,8 @@ public class Main extends Application {
 		pane.getChildren().addAll(stack);
 
 	}
-
+	
+	// helper method for drawing edge
 	private void drawEdge(BorderPane drawGraphPane, double x1, double y1, double x2, double y2) {
 		Line line = new Line();
 		line.setStartX(x1);
@@ -776,7 +785,8 @@ public class Main extends Application {
 		line.setEndY(y2);
 		drawGraphPane.getChildren().addAll(line);
 	}
-
+	
+	//helper method for updating combobox when adding
 	private void updateAddList() {
 		userList = socialNetwork.graph.getAllNodes();
 
@@ -799,7 +809,8 @@ public class Main extends Application {
 			}
 		}
 	}
-
+	
+	//helper method for updating combobox when deleting
 	private void compareAndDelete(ComboBox<String> currentList, List<Person> nextList) {
 		if (nextList.size() != 0) {
 			if (currentList != null) {
@@ -818,7 +829,8 @@ public class Main extends Application {
 			}
 		}
 	}
-
+	
+	//helper method for updating combobox when deleting
 	private void updateRemoveList() {
 		userList = socialNetwork.graph.getAllNodes();
 
@@ -833,7 +845,8 @@ public class Main extends Application {
 		compareAndDelete(sequence2, userList);
 		compareAndDelete(searchInp, userList);
 	}
-
+	
+	//helper method for deciding central User
 	private void setSelectedUser(String name) {
 		ArrayList<Person> friends = (ArrayList<Person>) socialNetwork.getFriends(name);
 		centralUser = name;
@@ -848,14 +861,16 @@ public class Main extends Application {
 			pane.setBottom(statusBox);
 		}
 	}
-
+	
+	//helper method for drawing circles
 	private StackPane createCircle(String name, double x, double y) {
 		Button roundButton = new Button(name);
+		//draw special users with different color
 		if (name.equals(centralUser) || name.equals(headUser) || name.equals(tailUser)) {
 			roundButton.setStyle("-fx-background-radius: 30px; " + "-fx-min-width: 60px; " + "-fx-min-height: 60px; "
 					+ "-fx-max-width: 60px; " + "-fx-max-height: 60px;" + "-fx-background-color: CORNFLOWERBLUE;");
 		} else {
-
+		//draw common users
 			roundButton.setStyle("-fx-background-radius: 30px; " + "-fx-min-width: 60px; " + "-fx-min-height: 60px; "
 					+ "-fx-max-width: 60px; " + "-fx-max-height: 60px;");
 		}
@@ -868,20 +883,25 @@ public class Main extends Application {
 		layout.setPadding(new Insets(10));
 		return layout;
 	}
-
+	
+	//main application that display all GUI components
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 		pane.setPadding(new Insets(10, 10, 10, 10));
 		VBox rightBox = new VBox(35);
 		drawGraph(null, null);
+		
+		//draw right side
 		setUpBasicMenuBox();
 		setUpAdvanceMenuBox();
 		rightBox.getChildren().addAll(basicMenuBox, advanceMenuBox);
 		rightBox.setStyle("-fx-border-color: rgb(207,18,22);\n" + "-fx-border-widths: 2;\n" + "-fx-padding: 10pt;\n"
 				+ "-fx-border-insets: 5;\n" + "-fx-border-radius: 5;");
-
+		
 		pane.setRight(rightBox);
+		
+		//draw left side
 		setUpstatusBox();
 
 		pane.setLeft(statusGraphBox);
