@@ -22,7 +22,7 @@ public interface SocialNetworkADT {
 
   public boolean addUser(String person) throws DuplicatePersonException;
 
-  public boolean removeUser(String person) throws PersonNotFoundException;
+  public boolean removeUser(String person) throws PersonNotFoundException, NoEdgeExistsException;
 
   public List<Person> getFriends(String person);
 
