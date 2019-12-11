@@ -701,7 +701,13 @@ public class Main extends Application {
 		statusGraphBox = new VBox(20);
 		infoBox = new HBox(20);
 		infoBox.prefWidth(580);
-		Label updateNum = updateNumOfConnectedGroups(socialNetwork.getConnectedComponents());
+		updateBox = new HBox(20);
+
+		Label updateGrp = updateNumOfConnectedGroups(socialNetwork.getConnectedComponents());
+		Label updateUsr = updateNumOfUsers(socialNetwork.numberOfUsers);
+		Label updateFri = updateNumOfFriends(socialNetwork.numberOfFriends);
+
+		updateBox.getChildren().addAll(updateGrp, updateUsr, updateFri);
 
 		Text appTitle = new Text("Weibo Social Network");
 		appTitle.setStyle("-fx-text-alignment: center;\n" + "-fx-font-weight: bolder;\n" + "-fx-font-size: 20px;\n");
@@ -745,7 +751,7 @@ public class Main extends Application {
 		infoBox.getChildren().addAll(appTitle);
 		infoBox.setAlignment(Pos.CENTER);
 
-		statusGraphBox.getChildren().addAll(updateNum, infoBox, drawGraphPane);
+		statusGraphBox.getChildren().addAll(updateBox, infoBox, drawGraphPane);
 		headUser = null;
 		tailUser = null;
 		centralUser = temp;
