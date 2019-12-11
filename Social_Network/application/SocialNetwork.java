@@ -30,6 +30,9 @@ public class SocialNetwork implements SocialNetworkADT {
   public boolean centralSet = false; // boolean to determine whether central user been set
   public String centralUser = ""; // the central user
 
+  public int numberOfUsers = 0;
+  public int numberOfFriends = 0;
+
   @Override
   public boolean addFriends(String person1, String person2)
       throws DuplicatePersonException, PersonNotFoundException, DuplicateEdgesException {
@@ -51,7 +54,8 @@ public class SocialNetwork implements SocialNetworkADT {
       }
 
     }
-    if (nodeAdded1 == true && nodeAdded2 == true && edgeAdded == true) {
+    if (edgeAdded == true) {
+      numberOfFriends++;
       operation = operation.concat("a " + person1 + " " + person2 + "\n");
       return true;
     } else {
@@ -75,6 +79,7 @@ public class SocialNetwork implements SocialNetworkADT {
       }
     }
     if (nodeRemoved) {
+      numberOfFriends--;
       operation = operation.concat("r " + person1 + " " + person2 + "\n");
       return true;
     } else {
@@ -96,6 +101,7 @@ public class SocialNetwork implements SocialNetworkADT {
       }
     }
     if (userAdded) {
+      numberOfUsers++;
       operation = operation.concat("a " + person + "\n");
       return true;
     } else {
@@ -107,12 +113,16 @@ public class SocialNetwork implements SocialNetworkADT {
   public boolean removeUser(String person) throws PersonNotFoundException, NoEdgeExistsException {
     // TODO Auto-generated method stub
     boolean userRemoved = false;
+    int mutual = 0;
     if (person != null) {
       Person user = graph.getNode(person);
+      mutual = graph.getNeighbors(user).size();
 
       userRemoved = graph.removeNode(user);
     }
     if (userRemoved) {
+      numberOfUsers--;
+      numberOfFriends = numberOfFriends - mutual;
       operation = operation.concat("r " + person + "\n");
       return true;
     } else {
@@ -273,21 +283,27 @@ public class SocialNetwork implements SocialNetworkADT {
       String[] words = op.split("\\s");
       String mode = words[0];
       if (mode.equals("s")) {
-        centralSet = true;
-        centralUser = words[1];
+        if (words.length == 2) {
+          centralSet = true;
+          centralUser = words[1];
+        } else {
+
+        }
       } else if (mode.equals("a")) {
         if (words.length == 2) {
           addUser(words[1]);
-        } else {
+        } else if (words.length == 3) {
           addFriends(words[1], words[2]);
         }
       } else if (mode.equals("r")) {
         if (words.length == 2) {
           removeUser(words[1]);
-        } else {
+        } else if (words.length == 3) {
           System.out.println("2");
           removeFriends(words[1], words[2]);
         }
+      } else {
+
       }
     }
   }
